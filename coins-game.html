@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>最少錢幣付款小遊戲</title>
+  <style>
+    @font-face {
+      font-family: "BpmfZihiKaiStd";
+      src: url("BpmfZihiKaiStd-Regular.ttf") format("truetype");
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "BpmfZihiKaiStd", "Noto Sans TC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* ruby 注音樣式 */
+    ruby {
+      ruby-position: over;
+    }
+
+    rt {
+      font-size: 0.6em;
+      line-height: 1;
+      color: #6b7280;
+    }
+
+    .game-container {
+      width: 960px;
+      max-width: 100%;
+      height: 540px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* 左欄：題目區（約 3 成） */
+    .left-panel {
+      width: 30%;
+      padding: 16px 20px 12px;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: space-between;
+      gap: 8px;
+      background: #f9fafb;
+    }
+
+    .question-number {
+      font-size: 14px;
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .product-image {
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #1f2933;
+      text-align: center;
+      padding: 8px;
+      min-height: 120px;
+      max-height: 160px;
+    }
+
+    .product-emoji {
+      font-size: 56px;
+      line-height: 1;
+    }
+
+    .question-header {
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    .price-display {
+      font-size: 28px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 2px;
+    }
+
+    .price-display span.unit {
+      font-size: 18px;
+      margin-left: 4px;
+      color: #4b5563;
+    }
+
+    .product-name {
+      font-size: 16px;
+      color: #374151;
+    }
+
+    .progress-info {
+      font-size: 13px;
+      color: #6b7280;
+      text-align: center;
+      padding-top: 4px;
+      border-top: 1px dashed #e5e7eb;
+      margin-top: 4px;
+    }
+
+    /* 右欄：四個選項（約 7 成） */
+    .right-panel {
+      width: 70%;
+      padding: 20px;
+      position: relative;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .options-grid {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+      justify-items: stretch;
+    }
+
+    .option-card {
+      background: #f9fafb;
+      border-radius: 14px;
+      border: 1px solid #e5e7eb;
+      padding: 14px 14px 12px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    }
+
+    .option-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+
+    .option-card.disabled {
+      cursor: default;
+      opacity: 0.6;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .option-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #4b5563;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .option-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .money-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0;
+    }
+
+    .note-icon {
+      min-width: 84px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      text-align: center;
+      font-size: 15px;
+      margin-right: 8px;
+      background: #ffffff;
+    }
+
+    /* 指定顏色：
+       1000 = 藍、100 = 紅、10 = 銀、1 = 銅 */
+    .note-1000 { background: #dbeafe; border-color: #93c5fd; } /* 藍 */
+    .note-100  { background: #fecaca; border-color: #f87171; } /* 紅 */
+    .note-10   { background: #e5e7eb; border-color: #9ca3af; } /* 銀 */
+    .note-1    { background: #fed7aa; border-color: #f97316; } /* 銅 */
+
+    .note-multiplier {
+      font-size: 16px;
+      color: #374151;
+    }
+
+    .note-multiplier strong {
+      font-weight: 700;
+    }
+
+    /* 勾勾 / 叉叉 提示 */
+    .feedback-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+      z-index: 10;
+    }
+
+    .feedback-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .feedback-circle {
+      min-width: 260px;
+      max-width: 320px;
+      border-radius: 24px;
+      background: #ffffff;
+      padding: 18px 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      animation: pop 0.25s ease-out;
+      text-align: center;
+    }
+
+    .feedback-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 999px;
+      border: 3px solid currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin-bottom: 10px;
+    }
+
+    .feedback-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .feedback-text-sub {
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.4;
+    }
+
+    @keyframes pop {
+      from {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* 結束畫面 */
+    .end-screen {
+      position: absolute;
+      inset: 0;
+      background: rgba(249, 250, 251, 0.98);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .end-screen.visible {
+      display: flex;
+    }
+
+    .end-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+
+    .end-subtitle {
+      font-size: 16px;
+      color: #4b5563;
+      margin-bottom: 16px;
+    }
+
+    .end-score {
+      font-size: 18px;
+      color: #1f2937;
+      margin-bottom: 20px;
+    }
+
+    .btn-restart {
+      border: none;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: #3b82f6;
+      color: #ffffff;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+      box-shadow: 0 6px 14px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-restart:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.5);
+    }
+
+    .btn-restart:active {
+      transform: translateY(0);
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .game-container {
+        flex-direction: column;
+        height: 640px;
+      }
+      .left-panel, .right-panel {
+        width: 100%;
+      }
+      .left-panel {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+        height: 40%;
+      }
+      .right-panel {
+        height: 60%;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="game-container">
+  <!-- 左欄：題號 + 圖片 + 價格與品名 -->
+  <div class="left-panel">
+    <div class="question-number" id="questionNumber"></div>
+
+    <div class="product-image" id="productImage">
+      <div class="product-emoji" id="productEmoji">🧸</div>
+    </div>
+
+    <div class="question-header">
+      <div class="price-display" id="priceDisplay"></div>
+      <div class="product-name" id="productName"></div>
+    </div>
+
+    <div class="progress-info" id="progressInfo"></div>
+  </div>
+
+  <!-- 右欄：四個選項 -->
+  <div class="right-panel">
+    <div class="options-grid" id="optionsGrid">
+      <!-- 選項由 JS 動態產生 -->
+    </div>
+
+    <!-- 勾勾 / 叉叉 提示 -->
+    <div class="feedback-overlay" id="feedbackOverlay">
+      <div class="feedback-circle">
+        <div class="feedback-icon" id="feedbackIcon">✓</div>
+        <div class="feedback-text" id="feedbackText"></div>
+        <div class="feedback-text-sub" id="feedbackSubText"></div>
+      </div>
+    </div>
+
+    <!-- 結束畫面 -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-title" id="endTitle"></div>
+      <div class="end-subtitle" id="endSubtitle"></div>
+      <div class="end-score" id="endScore"></div>
+      <button class="btn-restart" id="restartBtn"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ===== ruby 注音模板 =====
+  const RUBY = {
+    // 題號
+    DI: "<ruby>第<rt>ㄉㄧˋ</rt></ruby>",
+    TI: "<ruby>題<rt>ㄊㄧˊ</rt></ruby>",
+    GONG: "<ruby>共<rt>ㄍㄨㄥˋ</rt></ruby>",
+    // 單位
+    YUAN: "<ruby>元<rt>ㄩㄢˊ</rt></ruby>",
+    // 進度
+    PROG_PREFIX: "<ruby>答<rt>ㄉㄚˊ</rt>對<rt>ㄉㄨㄟˋ</rt>題<rt>ㄊㄧˊ</rt>數<rt>ㄕㄨˋ</rt></ruby>：",
+    // 付款方式
+    PAY_LABEL: "<ruby>付<rt>ㄈㄨˋ</rt>款<rt>ㄎㄨㄢˇ</rt>方<rt>ㄈㄤ</rt>式<rt>ㄕˋ</rt></ruby>",
+    // 回饋文字
+    ANSWER_OK: "<ruby>答<rt>ㄉㄚˊ</rt>對<rt>ㄉㄨㄟˋ</rt>了<rt>˙ㄌㄜ</rt></ruby>",
+    ANSWER_BAD: "<ruby>再<rt>ㄗㄞˋ</rt>想<rt>ㄒㄧㄤˇ</rt>一<rt>ㄧ</rt>想<rt>ㄒㄧㄤˇ</rt></ruby>",
+    SUB_NEXT: "<ruby>進<rt>ㄐㄧㄣˋ</rt>入<rt>ㄖㄨˋ</rt>下<rt>ㄒㄧㄚˋ</rt>一<rt>ㄧ</rt>題<rt>ㄊㄧˊ</rt></ruby>…",
+    SUB_RESULT: "<ruby>即<rt>ㄐㄧˊ</rt>將<rt>ㄐㄧㄤ</rt>顯<rt>ㄒㄧㄢˇ</rt>示<rt>ㄕˋ</rt>結<rt>ㄐㄧㄝˊ</rt>果<rt>ㄍㄨㄛˊ</rt></ruby>…",
+    SUB_WRONG: "<ruby>這<rt>ㄓㄜˋ</rt>個<rt>˙ㄍㄜ</rt>不<rt>ㄅㄨˋ</rt>是<rt>ㄕˋ</rt>最<rt>ㄗㄨㄟˋ</rt>少<rt>ㄕㄠˇ</rt>錢<rt>ㄑㄧㄢˊ</rt>幣<rt>ㄅㄧˋ</rt>的<rt>˙ㄉㄜ</rt>付<rt>ㄈㄨˋ</rt>款<rt>ㄎㄨㄢˇ</rt>方<rt>ㄈㄤ</rt>式<rt>ㄕˋ</rt></ruby>。",
+    // 結束畫面
+    END_TITLE: "<ruby>全<rt>ㄑㄩㄢˊ</rt>部<rt>ㄅㄨˋ</rt>題<rt>ㄊㄧˊ</rt>目<rt>ㄇㄨˋ</rt>完<rt>ㄨㄢˊ</rt>成<rt>ㄔㄥˊ</rt></ruby>",
+    END_SUBTITLE: "<ruby>你<rt>ㄋㄧˇ</rt>已<rt>ㄧˇ</rt>經<rt>ㄐㄧㄥ</rt>學<rt>ㄒㄩㄝˊ</rt>會<rt>ㄏㄨㄟˋ</rt>如<rt>ㄖㄨˊ</rt>何<rt>ㄏㄜˊ</rt>用<rt>ㄩㄥˋ</rt>最<rt>ㄗㄨㄟˋ</rt>少<rt>ㄕㄠˇ</rt>的<rt>˙ㄉㄜ</rt>錢<rt>ㄑㄧㄢˊ</rt>幣<rt>ㄅㄧˋ</rt>付<rt>ㄈㄨˋ</rt>款<rt>ㄎㄨㄢˇ</rt></ruby>。",
+    END_SCORE_MID: "<ruby>題<rt>ㄊㄧˊ</rt>，<rt>，</rt>你<rt>ㄋㄧˇ</rt>答<rt>ㄉㄚˊ</rt>對<rt>ㄉㄨㄟˋ</rt>了<rt>˙ㄌㄜ</rt></ruby>",
+    END_SCORE_TAIL: "<ruby>題<rt>ㄊㄧˊ</rt></ruby>。",
+    // 按鈕
+    RESTART: "<ruby>再<rt>ㄗㄞˋ</rt>玩<rt>ㄨㄢˊ</rt>一<rt>ㄧ</rt>次<rt>ㄘˋ</rt></ruby>"
+  };
+
+  // 商品名稱注音
+  const PRODUCT_RUBY = {
+    "積木組合": "<ruby>積<rt>ㄐㄧˊ</rt>木<rt>ㄇㄨˋ</rt>組<rt>ㄗㄨˇ</rt>合<rt>ㄏㄜˊ</rt></ruby>",
+    "小熊玩偶": "<ruby>小<rt>ㄒㄧㄠˇ</rt>熊<rt>ㄒㄩㄥˊ</rt>玩<rt>ㄨㄢˊ</rt>偶<rt>ㄡˇ</rt></ruby>",
+    "遙控機器人": "<ruby>遙<rt>ㄧㄠˊ</rt>控<rt>ㄎㄨㄥˋ</rt>機<rt>ㄐㄧ</rt>器<rt>ㄑㄧˋ</rt>人<rt>ㄖㄣˊ</rt></ruby>",
+    "高階遊戲主機": "<ruby>高<rt>ㄍㄠ</rt>階<rt>ㄐㄧㄝ</rt>遊<rt>ㄧㄡˊ</rt>戲<rt>ㄒㄧˋ</rt>主<rt>ㄓㄨˇ</rt>機<rt>ㄐㄧ</rt></ruby>",
+    "科學實驗套組": "<ruby>科<rt>ㄎㄜ</rt>學<rt>ㄒㄩㄝˊ</rt>實<rt>ㄕˊ</rt>驗<rt>ㄧㄢˋ</rt>套<rt>ㄊㄠˋ</rt>組<rt>ㄗㄨˇ</rt></ruby>",
+    "直排輪鞋組合": "<ruby>直<rt>ㄓˊ</rt>排<rt>ㄆㄞˊ</rt>輪<rt>ㄌㄨㄣˊ</rt>鞋<rt>ㄒㄧㄝˊ</rt>組<rt>ㄗㄨˇ</rt>合<rt>ㄏㄜˊ</rt></ruby>",
+    "模型汽車": "<ruby>模<rt>ㄇㄛˊ</rt>型<rt>ㄒㄧㄥˊ</rt>汽<rt>ㄑㄧˋ</rt>車<rt>ㄔㄜ</rt></ruby>",
+    "電動火車組": "<ruby>電<rt>ㄉㄧㄢˋ</rt>動<rt>ㄉㄨㄥˋ</rt>火<rt>ㄏㄨㄛˇ</rt>車<rt>ㄔㄜ</rt>組<rt>ㄗㄨˇ</rt></ruby>",
+    "鋼琴玩具組": "<ruby>鋼<rt>ㄍㄤ</rt>琴<rt>ㄑㄧㄣˊ</rt>玩<rt>ㄨㄢˊ</rt>具<rt>ㄐㄩˋ</rt>組<rt>ㄗㄨˇ</rt></ruby>",
+    "戶外露營組": "<ruby>戶<rt>ㄏㄨˋ</rt>外<rt>ㄨㄞˋ</rt>露<rt>ㄌㄨˋ</rt>營<rt>ㄧㄥˊ</rt>組<rt>ㄗㄨˇ</rt></ruby>",
+    "桌遊大禮包": "<ruby>桌<rt>ㄓㄨㄛ</rt>遊<rt>ㄧㄡˊ</rt>大<rt>ㄉㄚˋ</rt>禮<rt>ㄌㄧˇ</rt>包<rt>ㄅㄠ</rt></ruby>"
+  };
+
+  // ===== 工具：洗牌函數 =====
+  function shuffle(array) {
+    const arr = array.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // ===== 題庫設定（同前一版，略） =====
+  const questionsPool = [
+    {
+      price: 2321,
+      name: "積木組合",
+      emoji: "🧱",
+      description: "2321 元的積木組合",
+      options: [
+        [{ denom: 1000, count: 2 }, { denom: 100, count: 3 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
+        [{ denom: 100, count: 23 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
+        [{ denom: 1000, count: 2 }, { denom: 10, count: 32 }, { denom: 1, count: 1 }],
+        [{ denom: 1, count: 2321 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 3152,
+      name: "小熊玩偶",
+      emoji: "🧸",
+      description: "3152 元的小熊玩偶",
+      options: [
+        [{ denom: 1000, count: 3 }, { denom: 100, count: 1 }, { denom: 10, count: 5 }, { denom: 1, count: 2 }],
+        [{ denom: 100, count: 31 }, { denom: 1, count: 52 }],
+        [{ denom: 1, count: 3152 }],
+        [{ denom: 1000, count: 3 }, { denom: 10, count: 15 }, { denom: 1, count: 2 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 4800,
+      name: "遙控機器人",
+      emoji: "🤖",
+      description: "4800 元的遙控機器人",
+      options: [
+        [{ denom: 1000, count: 4 }, { denom: 100, count: 8 }],
+        [{ denom: 100, count: 48 }],
+        [{ denom: 10, count: 480 }],
+        [{ denom: 1000, count: 3 }, { denom: 100, count: 18 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 9999,
+      name: "高階遊戲主機",
+      emoji: "🎮",
+      description: "9999 元的高階遊戲主機",
+      options: [
+        [{ denom: 1000, count: 9 }, { denom: 100, count: 9 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
+        [{ denom: 100, count: 99 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
+        [{ denom: 1000, count: 9 }, { denom: 10, count: 99 }, { denom: 1, count: 9 }],
+        [{ denom: 1, count: 9999 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 4276,
+      name: "科學實驗套組",
+      emoji: "🧪",
+      description: "4276 元的科學實驗套組",
+      options: [
+        [{ denom: 1000, count: 4 }, { denom: 100, count: 2 }, { denom: 10, count: 7 }, { denom: 1, count: 6 }],
+        [{ denom: 100, count: 42 }, { denom: 10, count: 7 }, { denom: 1, count: 6 }],
+        [{ denom: 1000, count: 4 }, { denom: 10, count: 27 }, { denom: 1, count: 6 }],
+        [{ denom: 1, count: 4276 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 6503,
+      name: "直排輪鞋組合",
+      emoji: "🛼",
+      description: "6503 元的直排輪鞋組合",
+      options: [
+        [{ denom: 1000, count: 6 }, { denom: 100, count: 5 }, { denom: 1, count: 3 }],
+        [{ denom: 100, count: 65 }, { denom: 1, count: 3 }],
+        [{ denom: 1000, count: 6 }, { denom: 10, count: 50 }, { denom: 1, count: 3 }],
+        [{ denom: 1, count: 6503 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 1234,
+      name: "模型汽車",
+      emoji: "🚗",
+      description: "1234 元的模型汽車",
+      options: [
+        [{ denom: 1000, count: 1 }, { denom: 100, count: 2 }, { denom: 10, count: 3 }, { denom: 1, count: 4 }],
+        [{ denom: 100, count: 12 }, { denom: 10, count: 3 }, { denom: 1, count: 4 }],
+        [{ denom: 1000, count: 1 }, { denom: 10, count: 23 }, { denom: 1, count: 4 }],
+        [{ denom: 1, count: 1234 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 5678,
+      name: "電動火車組",
+      emoji: "🚂",
+      description: "5678 元的電動火車組",
+      options: [
+        [{ denom: 1000, count: 5 }, { denom: 100, count: 6 }, { denom: 10, count: 7 }, { denom: 1, count: 8 }],
+        [{ denom: 100, count: 56 }, { denom: 10, count: 7 }, { denom: 1, count: 8 }],
+        [{ denom: 1000, count: 5 }, { denom: 10, count: 67 }, { denom: 1, count: 8 }],
+        [{ denom: 1, count: 5678 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 7012,
+      name: "鋼琴玩具組",
+      emoji: "🎹",
+      description: "7012 元的鋼琴玩具組",
+      options: [
+        [{ denom: 1000, count: 7 }, { denom: 10, count: 1 }, { denom: 1, count: 2 }],
+        [{ denom: 100, count: 70 }, { denom: 10, count: 1 }, { denom: 1, count: 2 }],
+        [{ denom: 1000, count: 7 }, { denom: 1, count: 12 }],
+        [{ denom: 1, count: 7012 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 8405,
+      name: "戶外露營組",
+      emoji: "⛺",
+      description: "8405 元的戶外露營組",
+      options: [
+        [{ denom: 1000, count: 8 }, { denom: 100, count: 4 }, { denom: 1, count: 5 }],
+        [{ denom: 100, count: 84 }, { denom: 1, count: 5 }],
+        [{ denom: 1000, count: 8 }, { denom: 10, count: 40 }, { denom: 1, count: 5 }],
+        [{ denom: 1, count: 8405 }]
+      ],
+      correctIndex: 0
+    },
+    {
+      price: 3907,
+      name: "桌遊大禮包",
+      emoji: "🎲",
+      description: "3907 元的桌遊大禮包",
+      options: [
+        [{ denom: 1000, count: 3 }, { denom: 100, count: 9 }, { denom: 1, count: 7 }],
+        [{ denom: 100, count: 39 }, { denom: 1, count: 7 }],
+        [{ denom: 1000, count: 3 }, { denom: 10, count: 90 }, { denom: 1, count: 7 }],
+        [{ denom: 1, count: 3907 }]
+      ],
+      correctIndex: 0
+    }
+  ];
+
+  const QUESTIONS_PER_GAME = 4;
+
+  // ===== DOM 元件 =====
+  const questionNumberEl = document.getElementById("questionNumber");
+  const priceDisplayEl = document.getElementById("priceDisplay");
+  const productNameEl = document.getElementById("productName");
+  const productEmojiEl = document.getElementById("productEmoji");
+  const progressInfoEl = document.getElementById("progressInfo");
+  const optionsGridEl = document.getElementById("optionsGrid");
+
+  const feedbackOverlayEl = document.getElementById("feedbackOverlay");
+  const feedbackIconEl = document.getElementById("feedbackIcon");
+  const feedbackTextEl = document.getElementById("feedbackText");
+  const feedbackSubTextEl = document.getElementById("feedbackSubText");
+
+  const endScreenEl = document.getElementById("endScreen");
+  const endTitleEl = document.getElementById("endTitle");
+  const endSubtitleEl = document.getElementById("endSubtitle");
+  const endScoreEl = document.getElementById("endScore");
+  const restartBtn = document.getElementById("restartBtn");
+
+  // ===== 遊戲狀態 =====
+  let gameQuestions = [];
+  let totalQuestions = 0;
+  let currentIndex = 0;
+  let correctCount = 0;
+  let locked = false;
+
+  function formatPrice(price) {
+    return price.toString();
+  }
+
+  function setupNewGame() {
+    const shuffledPool = shuffle(questionsPool);
+    gameQuestions = shuffledPool.slice(0, Math.min(QUESTIONS_PER_GAME, shuffledPool.length));
+    totalQuestions = gameQuestions.length;
+    currentIndex = 0;
+    correctCount = 0;
+    locked = false;
+    endScreenEl.classList.remove("visible");
+
+    // 設定結束畫面固定文字、按鈕注音
+    endTitleEl.innerHTML = RUBY.END_TITLE;
+    endSubtitleEl.innerHTML = RUBY.END_SUBTITLE;
+    restartBtn.innerHTML = RUBY.RESTART;
+
+    renderQuestion();
+  }
+
+  function renderQuestion() {
+    locked = false;
+    feedbackOverlayEl.classList.remove("visible");
+
+    const q = gameQuestions[currentIndex];
+
+    // 題號
+    questionNumberEl.innerHTML =
+      `${RUBY.DI} ${currentIndex + 1} ${RUBY.TI} / ${RUBY.GONG} ${totalQuestions} ${RUBY.TI}`;
+
+    // 價格
+    priceDisplayEl.innerHTML =
+      `${formatPrice(q.price)}<span class="unit">${RUBY.YUAN}</span>`;
+
+    // 商品名稱注音
+    productNameEl.innerHTML = PRODUCT_RUBY[q.name] || q.name;
+
+    // 圖案
+    productEmojiEl.textContent = q.emoji;
+
+    // 進度
+    progressInfoEl.innerHTML =
+      `${RUBY.PROG_PREFIX}${correctCount} ${RUBY.TI}`;
+
+    // 選項
+    const optionBundles = q.options.map((opt, idx) => ({
+      option: opt,
+      isCorrect: idx === q.correctIndex
+    }));
+    const shuffledOptions = shuffle(optionBundles);
+
+    optionsGridEl.innerHTML = "";
+    const letters = ["A", "B", "C", "D"];
+    const denomOrder = [1000, 100, 10, 1];
+
+    shuffledOptions.forEach((bundle, index) => {
+      const card = document.createElement("div");
+      card.className = "option-card";
+      card.dataset.correct = bundle.isCorrect ? "1" : "0";
+
+      const title = document.createElement("div");
+      title.className = "option-title";
+      title.innerHTML = `${RUBY.PAY_LABEL} ${letters[index]}`;
+      card.appendChild(title);
+
+      const body = document.createElement("div");
+      body.className = "option-body";
+
+      // 每個選項固定顯示四種面額，沒有的就 ×0
+      denomOrder.forEach(denom => {
+        const found = bundle.option.find(row => row.denom === denom);
+        const count = found ? found.count : 0;
+
+        const line = document.createElement("div");
+        line.className = "money-line";
+
+        const note = document.createElement("div");
+        note.className = "note-icon";
+
+        if (denom === 1000) note.classList.add("note-1000");
+        else if (denom === 100) note.classList.add("note-100");
+        else if (denom === 10) note.classList.add("note-10");
+        else if (denom === 1) note.classList.add("note-1");
+
+        note.textContent = `${denom} 元`;
+        line.appendChild(note);
+
+        const multi = document.createElement("div");
+        multi.className = "note-multiplier";
+        multi.innerHTML = `× <strong>${count}</strong>`;
+        line.appendChild(multi);
+
+        body.appendChild(line);
+      });
+
+      card.appendChild(body);
+      card.addEventListener("click", () => handleOptionClick(card));
+      optionsGridEl.appendChild(card);
+    });
+  }
+
+  // ===== 小音效：答對 / 答錯 =====
+  function playSound(isCorrect) {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) return;
+
+      const ctx = new AudioContext();
+      const now = ctx.currentTime;
+
+      function tone(freq, startOffset, duration) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        const start = now + startOffset;
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(0.2, start + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+
+        osc.start(start);
+        osc.stop(start + duration + 0.05);
+      }
+
+      if (isCorrect) {
+        tone(800, 0, 0.12);
+        tone(1000, 0.16, 0.12);
+      } else {
+        tone(380, 0, 0.16);
+        tone(260, 0.18, 0.18);
+      }
+
+      setTimeout(() => ctx.close(), 600);
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  function handleOptionClick(cardEl) {
+    if (locked) return;
+
+    const isCorrect = cardEl.dataset.correct === "1";
+    locked = true;
+    showFeedback(isCorrect);
+
+    const cards = optionsGridEl.querySelectorAll(".option-card");
+    cards.forEach(card => card.classList.add("disabled"));
+
+    if (isCorrect) {
+      correctCount++;
+    }
+
+    setTimeout(() => {
+      if (currentIndex < totalQuestions - 1) {
+        currentIndex++;
+        renderQuestion();
+      } else {
+        showEndScreen();
+      }
+    }, 1200);
+  }
+
+  function showFeedback(isCorrect) {
+    feedbackIconEl.textContent = isCorrect ? "✓" : "✗";
+    feedbackIconEl.style.color = isCorrect ? "#16a34a" : "#dc2626";
+    feedbackTextEl.innerHTML = isCorrect ? RUBY.ANSWER_OK : RUBY.ANSWER_BAD;
+
+    if (isCorrect) {
+      feedbackSubTextEl.innerHTML =
+        currentIndex < totalQuestions - 1 ? RUBY.SUB_NEXT : RUBY.SUB_RESULT;
+    } else {
+      feedbackSubTextEl.innerHTML = RUBY.SUB_WRONG;
+    }
+
+    feedbackOverlayEl.classList.add("visible");
+    playSound(isCorrect);
+  }
+
+  function showEndScreen() {
+    feedbackOverlayEl.classList.remove("visible");
+
+    // 例如：「共 4 題，你答對了 3 題。」
+    endScoreEl.innerHTML =
+      `${RUBY.GONG} ${totalQuestions} ${RUBY.TI}${RUBY.END_SCORE_MID} ${correctCount} ${RUBY.END_SCORE_TAIL}`;
+
+    endScreenEl.classList.add("visible");
+  }
+
+  function restartGame() {
+    setupNewGame();
+  }
+
+  restartBtn.addEventListener("click", restartGame);
+
+  // 初始化
+  setupNewGame();
+</script>
+</body>
+</html>
