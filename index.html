@@ -24,23 +24,15 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-    }
-
-    /* ruby 注音樣式 */
-    ruby {
-      ruby-position: over;
-    }
-
-    rt {
-      font-size: 0.6em;
-      line-height: 1;
-      color: #6b7280;
+      font-size: 22px;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
     .game-container {
-      width: 960px;
+      width: 1080px; /* 整體變寬一點，讓內部間距拉開 */
       max-width: 100%;
-      height: 540px;
+      height: 560px;
       background: #ffffff;
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.12);
@@ -51,18 +43,18 @@
     /* 左欄：題目區（約 3 成） */
     .left-panel {
       width: 30%;
-      padding: 16px 20px 12px;
+      padding: 20px 26px 16px; /* padding 加大一點 */
       border-right: 1px solid #e5e7eb;
       display: flex;
       flex-direction: column;
       align-items: stretch;
       justify-content: space-between;
-      gap: 8px;
+      gap: 12px;
       background: #f9fafb;
     }
 
     .question-number {
-      font-size: 14px;
+      font-size: 20px;
       color: #6b7280;
       text-align: center;
       margin-bottom: 4px;
@@ -78,45 +70,45 @@
       justify-content: center;
       color: #1f2933;
       text-align: center;
-      padding: 8px;
-      min-height: 120px;
-      max-height: 160px;
+      padding: 10px;
+      min-height: 130px;
+      max-height: 170px;
     }
 
     .product-emoji {
-      font-size: 56px;
+      font-size: 80px;
       line-height: 1;
     }
 
     .question-header {
       text-align: center;
-      margin-top: 4px;
+      margin-top: 6px;
       margin-bottom: 4px;
     }
 
     .price-display {
-      font-size: 28px;
+      font-size: 42px;
       font-weight: 700;
       color: #111827;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
 
     .price-display span.unit {
-      font-size: 18px;
+      font-size: 26px;
       margin-left: 4px;
       color: #4b5563;
     }
 
     .product-name {
-      font-size: 16px;
+      font-size: 24px;
       color: #374151;
     }
 
     .progress-info {
-      font-size: 13px;
+      font-size: 20px;
       color: #6b7280;
       text-align: center;
-      padding-top: 4px;
+      padding-top: 8px;
       border-top: 1px dashed #e5e7eb;
       margin-top: 4px;
     }
@@ -124,7 +116,7 @@
     /* 右欄：四個選項（約 7 成） */
     .right-panel {
       width: 70%;
-      padding: 20px;
+      padding: 22px; /* 增加 padding，讓四格彼此距離拉開 */
       position: relative;
       display: flex;
       align-items: stretch;
@@ -137,7 +129,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
-      gap: 16px;
+      gap: 18px; /* 四格間距拉開 */
       align-items: stretch;
       justify-items: stretch;
     }
@@ -150,11 +142,11 @@
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+      transition: box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+      /* 拿掉 hover 的位移縮放，避免字在 transform 後看起來糊 */
     }
 
     .option-card:hover {
-      transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(0,0,0,0.08);
       border-color: #3b82f6;
       background: #eff6ff;
@@ -164,14 +156,13 @@
       cursor: default;
       opacity: 0.6;
       box-shadow: none;
-      transform: none;
     }
 
     .option-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #4b5563;
-      margin-bottom: 10px;
+      font-size: 22px;
+      font-weight: 500;  /* 稍微降一點粗度，比較不會糊 */
+      color: #374151;
+      margin-bottom: 8px;
       text-align: center;
     }
 
@@ -181,40 +172,47 @@
       flex-direction: column;
       justify-content: center;
       gap: 6px;
+      align-items: center;  /* 整組鈔票＋乘號在格內置中 */
     }
 
     .money-line {
       display: flex;
       align-items: center;
-      justify-content: center;
-      margin-bottom: 0;
+      justify-content: flex-start; /* 內部仍是左側鈔票、右側乘號 */
+      width: max-content;          /* 以內容寬度為主 */
+      margin: 0 auto;              /* 整行置中 */
     }
 
     .note-icon {
-      min-width: 84px;
+      min-width: 110px;
       padding: 6px 10px;
       border-radius: 8px;
       border: 1px solid #d1d5db;
       text-align: center;
-      font-size: 15px;
-      margin-right: 8px;
+      font-size: 20px;      /* 鈔票字大小維持 */
+      margin-right: 10px;
       background: #ffffff;
+      line-height: 1.2;
     }
 
     /* 指定顏色：
        1000 = 藍、100 = 紅、10 = 銀、1 = 銅 */
-    .note-1000 { background: #dbeafe; border-color: #93c5fd; } /* 藍 */
-    .note-100  { background: #fecaca; border-color: #f87171; } /* 紅 */
-    .note-10   { background: #e5e7eb; border-color: #9ca3af; } /* 銀 */
-    .note-1    { background: #fed7aa; border-color: #f97316; } /* 銅 */
+    .note-1000 { background: #dbeafe; border-color: #93c5fd; }
+    .note-100  { background: #fecaca; border-color: #f87171; }
+    .note-10   { background: #e5e7eb; border-color: #9ca3af; }
+    .note-1    { background: #fed7aa; border-color: #f97316; }
 
     .note-multiplier {
-      font-size: 16px;
+      display: flex;
+      align-items: center;
+      min-width: 80px;      /* 右側「× 數量」欄寬固定，四行對齊 */
+      font-size: 20px;      /* 乘號字大小維持 */
       color: #374151;
     }
 
     .note-multiplier strong {
       font-weight: 700;
+      margin-left: 4px;
     }
 
     /* 勾勾 / 叉叉 提示 */
@@ -237,11 +235,11 @@
     }
 
     .feedback-circle {
-      min-width: 260px;
-      max-width: 320px;
+      min-width: 300px;
+      max-width: 380px;
       border-radius: 24px;
       background: #ffffff;
-      padding: 18px 24px 20px;
+      padding: 24px 30px 26px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -252,28 +250,28 @@
     }
 
     .feedback-icon {
-      width: 72px;
-      height: 72px;
+      width: 90px;
+      height: 90px;
       border-radius: 999px;
       border: 3px solid currentColor;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 40px;
-      margin-bottom: 10px;
+      font-size: 52px;
+      margin-bottom: 14px;
     }
 
     .feedback-text {
-      font-size: 18px;
+      font-size: 24px;
       font-weight: 600;
       color: #111827;
-      margin-bottom: 4px;
+      margin-bottom: 8px;
     }
 
     .feedback-text-sub {
-      font-size: 14px;
+      font-size: 20px;
       color: #4b5563;
-      line-height: 1.4;
+      line-height: 1.5;
     }
 
     @keyframes pop {
@@ -306,31 +304,31 @@
     }
 
     .end-title {
-      font-size: 28px;
+      font-size: 34px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
       color: #111827;
     }
 
     .end-subtitle {
-      font-size: 16px;
+      font-size: 22px;
       color: #4b5563;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
     .end-score {
-      font-size: 18px;
+      font-size: 24px;
       color: #1f2937;
-      margin-bottom: 20px;
+      margin-bottom: 26px;
     }
 
     .btn-restart {
       border: none;
-      padding: 10px 20px;
+      padding: 14px 30px;
       border-radius: 999px;
       background: #3b82f6;
       color: #ffffff;
-      font-size: 15px;
+      font-size: 20px;
       cursor: pointer;
       transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
       box-shadow: 0 6px 14px rgba(37, 99, 235, 0.4);
@@ -410,59 +408,7 @@
 </div>
 
 <script>
-  // ===== ruby 注音模板 =====
-  const RUBY = {
-    // 題號
-    DI: "<ruby>第<rt>ㄉㄧˋ</rt></ruby>",
-    TI: "<ruby>題<rt>ㄊㄧˊ</rt></ruby>",
-    GONG: "<ruby>共<rt>ㄍㄨㄥˋ</rt></ruby>",
-    // 單位
-    YUAN: "<ruby>元<rt>ㄩㄢˊ</rt></ruby>",
-    // 進度
-    PROG_PREFIX: "<ruby>答<rt>ㄉㄚˊ</rt>對<rt>ㄉㄨㄟˋ</rt>題<rt>ㄊㄧˊ</rt>數<rt>ㄕㄨˋ</rt></ruby>：",
-    // 付款方式
-    PAY_LABEL: "<ruby>付<rt>ㄈㄨˋ</rt>款<rt>ㄎㄨㄢˇ</rt>方<rt>ㄈㄤ</rt>式<rt>ㄕˋ</rt></ruby>",
-    // 回饋文字
-    ANSWER_OK: "<ruby>答<rt>ㄉㄚˊ</rt>對<rt>ㄉㄨㄟˋ</rt>了<rt>˙ㄌㄜ</rt></ruby>",
-    ANSWER_BAD: "<ruby>再<rt>ㄗㄞˋ</rt>想<rt>ㄒㄧㄤˇ</rt>一<rt>ㄧ</rt>想<rt>ㄒㄧㄤˇ</rt></ruby>",
-    SUB_NEXT: "<ruby>進<rt>ㄐㄧㄣˋ</rt>入<rt>ㄖㄨˋ</rt>下<rt>ㄒㄧㄚˋ</rt>一<rt>ㄧ</rt>題<rt>ㄊㄧˊ</rt></ruby>…",
-    SUB_RESULT: "<ruby>即<rt>ㄐㄧˊ</rt>將<rt>ㄐㄧㄤ</rt>顯<rt>ㄒㄧㄢˇ</rt>示<rt>ㄕˋ</rt>結<rt>ㄐㄧㄝˊ</rt>果<rt>ㄍㄨㄛˊ</rt></ruby>…",
-    SUB_WRONG: "<ruby>這<rt>ㄓㄜˋ</rt>個<rt>˙ㄍㄜ</rt>不<rt>ㄅㄨˋ</rt>是<rt>ㄕˋ</rt>最<rt>ㄗㄨㄟˋ</rt>少<rt>ㄕㄠˇ</rt>錢<rt>ㄑㄧㄢˊ</rt>幣<rt>ㄅㄧˋ</rt>的<rt>˙ㄉㄜ</rt>付<rt>ㄈㄨˋ</rt>款<rt>ㄎㄨㄢˇ</rt>方<rt>ㄈㄤ</rt>式<rt>ㄕˋ</rt></ruby>。",
-    // 結束畫面
-    END_TITLE: "<ruby>全<rt>ㄑㄩㄢˊ</rt>部<rt>ㄅㄨˋ</rt>題<rt>ㄊㄧˊ</rt>目<rt>ㄇㄨˋ</rt>完<rt>ㄨㄢˊ</rt>成<rt>ㄔㄥˊ</rt></ruby>",
-    END_SUBTITLE: "<ruby>你<rt>ㄋㄧˇ</rt>已<rt>ㄧˇ</rt>經<rt>ㄐㄧㄥ</rt>學<rt>ㄒㄩㄝˊ</rt>會<rt>ㄏㄨㄟˋ</rt>如<rt>ㄖㄨˊ</rt>何<rt>ㄏㄜˊ</rt>用<rt>ㄩㄥˋ</rt>最<rt>ㄗㄨㄟˋ</rt>少<rt>ㄕㄠˇ</rt>的<rt>˙ㄉㄜ</rt>錢<rt>ㄑㄧㄢˊ</rt>幣<rt>ㄅㄧˋ</rt>付<rt>ㄈㄨˋ</rt>款<rt>ㄎㄨㄢˇ</rt></ruby>。",
-    END_SCORE_MID: "<ruby>題<rt>ㄊㄧˊ</rt>，<rt>，</rt>你<rt>ㄋㄧˇ</rt>答<rt>ㄉㄚˊ</rt>對<rt>ㄉㄨㄟˋ</rt>了<rt>˙ㄌㄜ</rt></ruby>",
-    END_SCORE_TAIL: "<ruby>題<rt>ㄊㄧˊ</rt></ruby>。",
-    // 按鈕
-    RESTART: "<ruby>再<rt>ㄗㄞˋ</rt>玩<rt>ㄨㄢˊ</rt>一<rt>ㄧ</rt>次<rt>ㄘˋ</rt></ruby>"
-  };
-
-  // 商品名稱注音
-  const PRODUCT_RUBY = {
-    "積木組合": "<ruby>積<rt>ㄐㄧˊ</rt>木<rt>ㄇㄨˋ</rt>組<rt>ㄗㄨˇ</rt>合<rt>ㄏㄜˊ</rt></ruby>",
-    "小熊玩偶": "<ruby>小<rt>ㄒㄧㄠˇ</rt>熊<rt>ㄒㄩㄥˊ</rt>玩<rt>ㄨㄢˊ</rt>偶<rt>ㄡˇ</rt></ruby>",
-    "遙控機器人": "<ruby>遙<rt>ㄧㄠˊ</rt>控<rt>ㄎㄨㄥˋ</rt>機<rt>ㄐㄧ</rt>器<rt>ㄑㄧˋ</rt>人<rt>ㄖㄣˊ</rt></ruby>",
-    "高階遊戲主機": "<ruby>高<rt>ㄍㄠ</rt>階<rt>ㄐㄧㄝ</rt>遊<rt>ㄧㄡˊ</rt>戲<rt>ㄒㄧˋ</rt>主<rt>ㄓㄨˇ</rt>機<rt>ㄐㄧ</rt></ruby>",
-    "科學實驗套組": "<ruby>科<rt>ㄎㄜ</rt>學<rt>ㄒㄩㄝˊ</rt>實<rt>ㄕˊ</rt>驗<rt>ㄧㄢˋ</rt>套<rt>ㄊㄠˋ</rt>組<rt>ㄗㄨˇ</rt></ruby>",
-    "直排輪鞋組合": "<ruby>直<rt>ㄓˊ</rt>排<rt>ㄆㄞˊ</rt>輪<rt>ㄌㄨㄣˊ</rt>鞋<rt>ㄒㄧㄝˊ</rt>組<rt>ㄗㄨˇ</rt>合<rt>ㄏㄜˊ</rt></ruby>",
-    "模型汽車": "<ruby>模<rt>ㄇㄛˊ</rt>型<rt>ㄒㄧㄥˊ</rt>汽<rt>ㄑㄧˋ</rt>車<rt>ㄔㄜ</rt></ruby>",
-    "電動火車組": "<ruby>電<rt>ㄉㄧㄢˋ</rt>動<rt>ㄉㄨㄥˋ</rt>火<rt>ㄏㄨㄛˇ</rt>車<rt>ㄔㄜ</rt>組<rt>ㄗㄨˇ</rt></ruby>",
-    "鋼琴玩具組": "<ruby>鋼<rt>ㄍㄤ</rt>琴<rt>ㄑㄧㄣˊ</rt>玩<rt>ㄨㄢˊ</rt>具<rt>ㄐㄩˋ</rt>組<rt>ㄗㄨˇ</rt></ruby>",
-    "戶外露營組": "<ruby>戶<rt>ㄏㄨˋ</rt>外<rt>ㄨㄞˋ</rt>露<rt>ㄌㄨˋ</rt>營<rt>ㄧㄥˊ</rt>組<rt>ㄗㄨˇ</rt></ruby>",
-    "桌遊大禮包": "<ruby>桌<rt>ㄓㄨㄛ</rt>遊<rt>ㄧㄡˊ</rt>大<rt>ㄉㄚˋ</rt>禮<rt>ㄌㄧˇ</rt>包<rt>ㄅㄠ</rt></ruby>"
-  };
-
-  // ===== 工具：洗牌函數 =====
-  function shuffle(array) {
-    const arr = array.slice();
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-  }
-
-  // ===== 題庫設定（同前一版，略） =====
+  // 題庫設定
   const questionsPool = [
     {
       price: 2321,
@@ -611,7 +557,7 @@
 
   const QUESTIONS_PER_GAME = 4;
 
-  // ===== DOM 元件 =====
+  // DOM
   const questionNumberEl = document.getElementById("questionNumber");
   const priceDisplayEl = document.getElementById("priceDisplay");
   const productNameEl = document.getElementById("productName");
@@ -630,12 +576,21 @@
   const endScoreEl = document.getElementById("endScore");
   const restartBtn = document.getElementById("restartBtn");
 
-  // ===== 遊戲狀態 =====
+  // 狀態
   let gameQuestions = [];
   let totalQuestions = 0;
   let currentIndex = 0;
   let correctCount = 0;
   let locked = false;
+
+  function shuffle(array) {
+    const arr = array.slice();
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
 
   function formatPrice(price) {
     return price.toString();
@@ -650,10 +605,9 @@
     locked = false;
     endScreenEl.classList.remove("visible");
 
-    // 設定結束畫面固定文字、按鈕注音
-    endTitleEl.innerHTML = RUBY.END_TITLE;
-    endSubtitleEl.innerHTML = RUBY.END_SUBTITLE;
-    restartBtn.innerHTML = RUBY.RESTART;
+    endTitleEl.textContent = "全部題目完成";
+    endSubtitleEl.textContent = "你已經學會如何用最少的錢幣付款。";
+    restartBtn.textContent = "再玩一次";
 
     renderQuestion();
   }
@@ -664,25 +618,12 @@
 
     const q = gameQuestions[currentIndex];
 
-    // 題號
-    questionNumberEl.innerHTML =
-      `${RUBY.DI} ${currentIndex + 1} ${RUBY.TI} / ${RUBY.GONG} ${totalQuestions} ${RUBY.TI}`;
-
-    // 價格
-    priceDisplayEl.innerHTML =
-      `${formatPrice(q.price)}<span class="unit">${RUBY.YUAN}</span>`;
-
-    // 商品名稱注音
-    productNameEl.innerHTML = PRODUCT_RUBY[q.name] || q.name;
-
-    // 圖案
+    questionNumberEl.textContent = `第 ${currentIndex + 1} 題 / 共 ${totalQuestions} 題`;
+    priceDisplayEl.innerHTML = `${formatPrice(q.price)}<span class="unit">元</span>`;
+    productNameEl.textContent = q.name;
     productEmojiEl.textContent = q.emoji;
+    progressInfoEl.textContent = `答對題數：${correctCount} 題`;
 
-    // 進度
-    progressInfoEl.innerHTML =
-      `${RUBY.PROG_PREFIX}${correctCount} ${RUBY.TI}`;
-
-    // 選項
     const optionBundles = q.options.map((opt, idx) => ({
       option: opt,
       isCorrect: idx === q.correctIndex
@@ -700,13 +641,12 @@
 
       const title = document.createElement("div");
       title.className = "option-title";
-      title.innerHTML = `${RUBY.PAY_LABEL} ${letters[index]}`;
+      title.textContent = `付款方式 ${letters[index]}`;
       card.appendChild(title);
 
       const body = document.createElement("div");
       body.className = "option-body";
 
-      // 每個選項固定顯示四種面額，沒有的就 ×0
       denomOrder.forEach(denom => {
         const found = bundle.option.find(row => row.denom === denom);
         const count = found ? found.count : 0;
@@ -739,7 +679,7 @@
     });
   }
 
-  // ===== 小音效：答對 / 答錯 =====
+  // 小音效：答對 / 答錯
   function playSound(isCorrect) {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -774,9 +714,7 @@
       }
 
       setTimeout(() => ctx.close(), 600);
-    } catch (e) {
-      // ignore
-    }
+    } catch (e) {}
   }
 
   function handleOptionClick(cardEl) {
@@ -806,13 +744,13 @@
   function showFeedback(isCorrect) {
     feedbackIconEl.textContent = isCorrect ? "✓" : "✗";
     feedbackIconEl.style.color = isCorrect ? "#16a34a" : "#dc2626";
-    feedbackTextEl.innerHTML = isCorrect ? RUBY.ANSWER_OK : RUBY.ANSWER_BAD;
+    feedbackTextEl.textContent = isCorrect ? "答對了" : "再想一想";
 
     if (isCorrect) {
-      feedbackSubTextEl.innerHTML =
-        currentIndex < totalQuestions - 1 ? RUBY.SUB_NEXT : RUBY.SUB_RESULT;
+      feedbackSubTextEl.textContent =
+        currentIndex < totalQuestions - 1 ? "進入下一題…" : "即將顯示結果…";
     } else {
-      feedbackSubTextEl.innerHTML = RUBY.SUB_WRONG;
+      feedbackSubTextEl.textContent = "這個不是最少錢幣的付款方式。";
     }
 
     feedbackOverlayEl.classList.add("visible");
@@ -821,11 +759,7 @@
 
   function showEndScreen() {
     feedbackOverlayEl.classList.remove("visible");
-
-    // 例如：「共 4 題，你答對了 3 題。」
-    endScoreEl.innerHTML =
-      `${RUBY.GONG} ${totalQuestions} ${RUBY.TI}${RUBY.END_SCORE_MID} ${correctCount} ${RUBY.END_SCORE_TAIL}`;
-
+    endScoreEl.textContent = `共 ${totalQuestions} 題，你答對了 ${correctCount} 題。`;
     endScreenEl.classList.add("visible");
   }
 
