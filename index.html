@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>最少錢幣付款小遊戲</title>
+
   <style>
     @font-face {
       font-family: "BpmfZihiKaiStd";
@@ -18,46 +20,64 @@
 
     body {
       margin: 0;
-      padding: 0;
+      padding: 12px;
       background: #f3f4f6;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      font-size: 22px;
+
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
+      font-size: 22px;
     }
 
     .game-container {
-      width: 1080px; /* 整體變寬一點，讓內部間距拉開 */
-      max-width: 100%;
-      height: 560px;
+      width: min(1240px, calc(100vw - 24px));
+      height: min(680px, calc(100vh - 24px));
       background: #ffffff;
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.12);
       display: flex;
       overflow: hidden;
+      position: relative;
     }
 
-    /* 左欄：題目區（約 3 成） */
+    /* ===== 左欄（題目區上下置中） ===== */
     .left-panel {
       width: 30%;
-      padding: 20px 26px 16px; /* padding 加大一點 */
+      padding: 20px 26px 16px;
       border-right: 1px solid #e5e7eb;
       display: flex;
       flex-direction: column;
-      align-items: stretch;
-      justify-content: space-between;
-      gap: 12px;
       background: #f9fafb;
+      min-width: 280px;
+      gap: 10px;
     }
 
     .question-number {
       font-size: 20px;
       color: #6b7280;
       text-align: center;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
+    }
+
+    .progress-info {
+      font-size: 20px;
+      color: #6b7280;
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .left-middle {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 12px;
+      padding: 6px 0;
+      min-height: 0;
     }
 
     .product-image {
@@ -65,29 +85,19 @@
       background: #ffffff;
       border: 1px solid #e5e7eb;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      color: #1f2933;
       text-align: center;
       padding: 10px;
-      min-height: 130px;
-      max-height: 170px;
+      height: clamp(170px, 30vh, 250px);
     }
 
-    .product-emoji {
-      font-size: 80px;
-      line-height: 1;
-    }
+    .product-emoji { font-size: 92px; line-height: 1; }
 
-    .question-header {
-      text-align: center;
-      margin-top: 6px;
-      margin-bottom: 4px;
-    }
+    .question-header { text-align: center; }
 
     .price-display {
-      font-size: 42px;
+      font-size: 46px;
       font-weight: 700;
       color: #111827;
       margin-bottom: 4px;
@@ -99,24 +109,32 @@
       color: #4b5563;
     }
 
-    .product-name {
-      font-size: 24px;
-      color: #374151;
+    .product-name { font-size: 26px; color:#374151; }
+
+    .left-bottom {
+      display: flex;
+      justify-content: center;
+      padding-top: 6px;
     }
 
-    .progress-info {
+    .btn-help {
+      border: none;
+      padding: 12px 22px;
+      border-radius: 999px;
+      background: #111827;
+      color: #ffffff;
       font-size: 20px;
-      color: #6b7280;
-      text-align: center;
-      padding-top: 8px;
-      border-top: 1px dashed #e5e7eb;
-      margin-top: 4px;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.12s ease, background 0.12s ease;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
     }
+    .btn-help:hover { background:#0b1220; box-shadow:0 12px 24px rgba(0,0,0,0.22); transform:translateY(-1px); }
+    .btn-help:active { transform:translateY(0px); box-shadow:0 8px 18px rgba(0,0,0,0.18); }
 
-    /* 右欄：四個選項（約 7 成） */
+    /* ===== 右欄 ===== */
     .right-panel {
       width: 70%;
-      padding: 22px; /* 增加 padding，讓四格彼此距離拉開 */
+      padding: 22px;
       position: relative;
       display: flex;
       align-items: stretch;
@@ -129,7 +147,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
-      gap: 18px; /* 四格間距拉開 */
+      gap: 18px;
       align-items: stretch;
       justify-items: stretch;
     }
@@ -143,7 +161,6 @@
       flex-direction: column;
       cursor: pointer;
       transition: box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
-      /* 拿掉 hover 的位移縮放，避免字在 transform 後看起來糊 */
     }
 
     .option-card:hover {
@@ -152,70 +169,42 @@
       background: #eff6ff;
     }
 
-    .option-card.disabled {
-      cursor: default;
-      opacity: 0.6;
-      box-shadow: none;
-    }
+    .option-card.disabled { cursor: default; opacity: 0.6; box-shadow: none; }
 
-    .option-title {
-      font-size: 22px;
-      font-weight: 500;  /* 稍微降一點粗度，比較不會糊 */
-      color: #374151;
-      margin-bottom: 8px;
-      text-align: center;
-    }
+    .option-title { font-size: 22px; font-weight: 500; color:#374151; margin-bottom:8px; text-align:center; }
 
     .option-body {
       flex: 1;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 6px;
-      align-items: center;  /* 整組鈔票＋乘號在格內置中 */
+      gap: 8px;
+      align-items: center;
     }
 
-    .money-line {
-      display: flex;
-      align-items: center;
-      justify-content: flex-start; /* 內部仍是左側鈔票、右側乘號 */
-      width: max-content;          /* 以內容寬度為主 */
-      margin: 0 auto;              /* 整行置中 */
-    }
+    .money-line { display:flex; align-items:center; justify-content:flex-start; width:max-content; margin:0 auto; }
 
     .note-icon {
-      min-width: 110px;
-      padding: 6px 10px;
-      border-radius: 8px;
+      min-width: 128px;
+      padding: 7px 10px;
+      border-radius: 10px;
       border: 1px solid #d1d5db;
       text-align: center;
-      font-size: 20px;      /* 鈔票字大小維持 */
-      margin-right: 10px;
+      font-size: 20px;
+      margin-right: 12px;
       background: #ffffff;
       line-height: 1.2;
     }
 
-    /* 指定顏色：
-       1000 = 藍、100 = 紅、10 = 銀、1 = 銅 */
-    .note-1000 { background: #dbeafe; border-color: #93c5fd; }
-    .note-100  { background: #fecaca; border-color: #f87171; }
-    .note-10   { background: #e5e7eb; border-color: #9ca3af; }
-    .note-1    { background: #fed7aa; border-color: #f97316; }
+    .note-1000 { background:#dbeafe; border-color:#93c5fd; }
+    .note-100  { background:#fecaca; border-color:#f87171; }
+    .note-10   { background:#e5e7eb; border-color:#9ca3af; }
+    .note-1    { background:#fed7aa; border-color:#f97316; }
 
-    .note-multiplier {
-      display: flex;
-      align-items: center;
-      min-width: 80px;      /* 右側「× 數量」欄寬固定，四行對齊 */
-      font-size: 20px;      /* 乘號字大小維持 */
-      color: #374151;
-    }
+    .note-multiplier { display:flex; align-items:center; min-width: 90px; font-size: 20px; color:#374151; }
+    .note-multiplier strong { font-weight: 700; margin-left: 4px; }
 
-    .note-multiplier strong {
-      font-weight: 700;
-      margin-left: 4px;
-    }
-
-    /* 勾勾 / 叉叉 提示 */
+    /* ===== 回饋 overlay ===== */
     .feedback-overlay {
       position: absolute;
       inset: 0;
@@ -228,15 +217,11 @@
       transition: opacity 0.15s ease;
       z-index: 10;
     }
-
-    .feedback-overlay.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    .feedback-overlay.visible { opacity:1; pointer-events:auto; }
 
     .feedback-circle {
-      min-width: 300px;
-      max-width: 380px;
+      min-width: 340px;
+      max-width: 460px;
       border-radius: 24px;
       background: #ffffff;
       padding: 24px 30px 26px;
@@ -248,44 +233,22 @@
       animation: pop 0.25s ease-out;
       text-align: center;
     }
-
     .feedback-icon {
-      width: 90px;
-      height: 90px;
+      width: 94px; height: 94px;
       border-radius: 999px;
       border: 3px solid currentColor;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 52px;
+      font-size: 54px;
       margin-bottom: 14px;
     }
+    .feedback-text { font-size: 30px; font-weight: 700; color:#111827; margin-bottom: 10px; }
+    .feedback-text-sub { font-size: 22px; color:#4b5563; line-height: 1.5; }
 
-    .feedback-text {
-      font-size: 24px;
-      font-weight: 600;
-      color: #111827;
-      margin-bottom: 8px;
-    }
+    @keyframes pop { from { transform: scale(0.86); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    .feedback-text-sub {
-      font-size: 20px;
-      color: #4b5563;
-      line-height: 1.5;
-    }
-
-    @keyframes pop {
-      from {
-        transform: scale(0.8);
-        opacity: 0;
-      }
-      to {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
-
-    /* 結束畫面 */
+    /* ===== 結束畫面 ===== */
     .end-screen {
       position: absolute;
       inset: 0;
@@ -298,479 +261,914 @@
       text-align: center;
       padding: 20px;
     }
+    .end-screen.visible { display:flex; }
 
-    .end-screen.visible {
-      display: flex;
-    }
-
-    .end-title {
-      font-size: 34px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: #111827;
-    }
-
-    .end-subtitle {
-      font-size: 22px;
-      color: #4b5563;
-      margin-bottom: 20px;
-    }
-
-    .end-score {
-      font-size: 24px;
-      color: #1f2937;
-      margin-bottom: 26px;
-    }
+    .end-title { font-size: 40px; font-weight: 800; margin-bottom: 14px; color:#111827; }
+    .end-subtitle { font-size: 24px; color:#4b5563; margin-bottom: 22px; line-height: 1.5; }
+    .end-score { font-size: 28px; color:#1f2937; margin-bottom: 28px; font-weight: 700; }
 
     .btn-restart {
       border: none;
-      padding: 14px 30px;
+      padding: 14px 32px;
       border-radius: 999px;
       background: #3b82f6;
       color: #ffffff;
-      font-size: 20px;
+      font-size: 22px;
       cursor: pointer;
       transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
       box-shadow: 0 6px 14px rgba(37, 99, 235, 0.4);
     }
+    .btn-restart:hover { background:#2563eb; transform:translateY(-1px); box-shadow:0 10px 20px rgba(37, 99, 235, 0.5); }
+    .btn-restart:active { transform:translateY(0); box-shadow:0 4px 10px rgba(37, 99, 235, 0.4); }
 
-    .btn-restart:hover {
+    /* ===== 操作說明（改成可滾動） ===== */
+    .guide-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 50;
+      padding: 14px;
+    }
+    .guide-overlay.visible { display:flex; }
+
+    .guide-modal {
+      width: min(1180px, 96vw);
+      height: min(720px, 92vh);
+      background: #ffffff;
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.32);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .guide-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f9fafb;
+      display: grid;
+      grid-template-columns: 90px 1fr 90px;
+      align-items: center;
+      column-gap: 10px;
+    }
+
+    .guide-indicator { font-size: 18px; font-weight: 900; color:#6b7280; justify-self: start; }
+
+    .guide-header-title {
+      justify-self: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 22px;
+      border-radius: 14px;
+      border: 2px solid #111827;
+      background: #ffffff;
+      font-size: 30px;
+      font-weight: 900;
+      color: #111827;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .guide-close {
+      justify-self: end;
+      width: 52px;
+      height: 46px;
+      border-radius: 14px;
+      border: none;
+      background: #111827;
+      color: #ffffff;
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.08s ease, background 0.12s ease;
+    }
+    .guide-close:hover { background:#0b1220; transform:translateY(-1px); }
+    .guide-close:active { transform:translateY(0px); }
+
+    /* ✅ 關鍵：允許滾動 */
+    .guide-body {
+      flex: 1;
+      padding: 16px 18px;
+      overflow-y: auto;   /* ✅ 可滾輪上下拉 */
+      overflow-x: hidden;
+      background: #ffffff;
+    }
+
+    .guide-inner {
+      width: 100%;
+      max-width: 1060px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .guide-page-title {
+      font-size: 34px;
+      font-weight: 900;
+      color: #111827;
+      text-align: center;
+      margin: 0;
+    }
+
+    .guide-text {
+      font-size: 24px;
+      color: #374151;
+      line-height: 1.5;
+      text-align: center;
+      width: 100%;
+      margin: 0;
+    }
+
+    /* ✅ 第一頁：上下置中（就算 guide-body 可滾動也能置中） */
+    .center-page {
+      min-height: calc(100% - 4px);
+      justify-content: center;
+    }
+
+    /* demo */
+    .demo-wrap { width: 100%; display:flex; justify-content:center; }
+
+    .demo {
+      width: min(980px, 96%);
+      aspect-ratio: 1080 / 560;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .demo-left {
+      width: 30%;
+      background: #f9fafb;
+      border-right: 1px solid #e5e7eb;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .demo-q {
+      text-align: center;
+      font-size: 16px;
+      color: #6b7280;
+      font-weight: 900;
+      margin-top: 2px;
+    }
+
+    .demo-progress {
+      text-align: center;
+      font-size: 16px;
+      color: #6b7280;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed #e5e7eb;
+      font-weight: 900;
+    }
+
+    .demo-product-image {
+      border-radius: 12px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      flex: 1;
+      min-height: 120px;
+    }
+    .demo-emoji { font-size: 60px; line-height: 1; }
+
+    .demo-question-header { text-align: center; }
+    .demo-price { font-size: 22px; font-weight: 900; color:#111827; margin-top: 4px; }
+    .demo-name  { font-size: 18px; font-weight: 800; color:#374151; margin-top: 2px; }
+
+    .demo-help {
+      text-align: center;
+      font-size: 14px;
+      color: #ffffff;
+      background: #111827;
+      border-radius: 999px;
+      padding: 9px 10px;
+      width: 84%;
+      margin: 6px auto 0;
+      font-weight: 900;
+    }
+
+    .demo-right {
+      width: 70%;
+      padding: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+      background: #ffffff;
+    }
+
+    .demo-card {
+      border-radius: 12px;
+      border: 1px solid #e5e7eb;
+      background: #f9fafb;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      gap: 8px;
+    }
+
+    .demo-card-title {
+      font-size: 14px;
+      color: #374151;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .demo-lines {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 7px;
+      align-items: center;
+    }
+
+    .demo-line { display:flex; align-items:center; gap: 8px; }
+
+    .demo-note {
+      width: 62px;
+      height: 22px;
+      border-radius: 7px;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+    }
+
+    .demo-note.b { background: #dbeafe; border-color: #93c5fd; }
+    .demo-note.r { background: #fecaca; border-color: #f87171; }
+    .demo-note.s { background: #e5e7eb; border-color: #9ca3af; }
+    .demo-note.c { background: #fed7aa; border-color: #f97316; }
+
+    .demo-x { font-size: 12px; color:#374151; width: 34px; font-weight: 900; }
+
+    /* callout */
+    .callout-box {
+      position: absolute;
+      border: 4px solid #2563eb;
+      border-radius: 14px;
+      box-shadow: 0 10px 22px rgba(37,99,235,0.25);
+      pointer-events: none;
+      z-index: 5;
+      background: transparent;
+    }
+
+    .callout-label {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
       background: #2563eb;
-      transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.5);
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 14px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+      white-space: nowrap;
+      max-width: calc(100% - 20px);
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .btn-restart:active {
-      transform: translateY(0);
-      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+    .feedback-samples {
+      width: min(980px, 96%);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 6px;
     }
 
-    @media (max-width: 768px) {
+    .feedback-sample {
+      border-radius: 18px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.10);
+      padding: 16px 16px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .feedback-sample .icon {
+      width: 78px;
+      height: 78px;
+      border-radius: 999px;
+      border: 3px solid currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 44px;
+    }
+
+    .feedback-sample .title { font-size: 28px; font-weight: 900; color:#111827; }
+    .feedback-sample .sub { font-size: 20px; color:#4b5563; line-height: 1.55; }
+
+    .guide-footer {
+      padding: 12px 16px;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .guide-btn {
+      border: none;
+      padding: 12px 18px;
+      border-radius: 999px;
+      background: #3b82f6;
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(37, 99, 235, 0.35);
+      transition: transform 0.08s ease, background 0.12s ease, box-shadow 0.12s ease;
+    }
+    .guide-btn:hover { background:#2563eb; transform:translateY(-1px); box-shadow:0 12px 22px rgba(37, 99, 235, 0.42); }
+    .guide-btn:active { transform:translateY(0px); }
+
+    .guide-btn.secondary { background:#111827; box-shadow:0 8px 18px rgba(0,0,0,0.22); }
+    .guide-btn.secondary:hover { background:#0b1220; box-shadow:0 12px 22px rgba(0,0,0,0.28); }
+
+    @media (max-width: 980px) {
+      body { padding: 10px; }
       .game-container {
+        width: calc(100vw - 20px);
+        height: calc(100vh - 20px);
         flex-direction: column;
-        height: 640px;
       }
-      .left-panel, .right-panel {
-        width: 100%;
-      }
-      .left-panel {
-        border-right: none;
-        border-bottom: 1px solid #e5e7eb;
-        height: 40%;
-      }
-      .right-panel {
-        height: 60%;
-      }
+      .left-panel, .right-panel { width: 100%; }
+      .left-panel { border-right: none; border-bottom: 1px solid #e5e7eb; }
+      .feedback-samples { grid-template-columns: 1fr; }
+      .guide-modal { width: 96vw; height: 92vh; }
+      .product-image { height: clamp(150px, 24vh, 220px); }
     }
   </style>
 </head>
+
 <body>
-<div class="game-container">
-  <!-- 左欄：題號 + 圖片 + 價格與品名 -->
-  <div class="left-panel">
-    <div class="question-number" id="questionNumber"></div>
+  <div class="game-container">
+    <!-- 左欄 -->
+    <div class="left-panel">
+      <div class="question-number" id="questionNumber"></div>
+      <div class="progress-info" id="progressInfo"></div>
 
-    <div class="product-image" id="productImage">
-      <div class="product-emoji" id="productEmoji">🧸</div>
-    </div>
+      <div class="left-middle">
+        <div class="product-image" id="productImage">
+          <div class="product-emoji" id="productEmoji">🧸</div>
+        </div>
 
-    <div class="question-header">
-      <div class="price-display" id="priceDisplay"></div>
-      <div class="product-name" id="productName"></div>
-    </div>
+        <div class="question-header">
+          <div class="price-display" id="priceDisplay"></div>
+          <div class="product-name" id="productName"></div>
+        </div>
+      </div>
 
-    <div class="progress-info" id="progressInfo"></div>
-  </div>
-
-  <!-- 右欄：四個選項 -->
-  <div class="right-panel">
-    <div class="options-grid" id="optionsGrid">
-      <!-- 選項由 JS 動態產生 -->
-    </div>
-
-    <!-- 勾勾 / 叉叉 提示 -->
-    <div class="feedback-overlay" id="feedbackOverlay">
-      <div class="feedback-circle">
-        <div class="feedback-icon" id="feedbackIcon">✓</div>
-        <div class="feedback-text" id="feedbackText"></div>
-        <div class="feedback-text-sub" id="feedbackSubText"></div>
+      <div class="left-bottom">
+        <button class="btn-help" id="helpBtn">操作說明</button>
       </div>
     </div>
 
-    <!-- 結束畫面 -->
-    <div class="end-screen" id="endScreen">
-      <div class="end-title" id="endTitle"></div>
-      <div class="end-subtitle" id="endSubtitle"></div>
-      <div class="end-score" id="endScore"></div>
-      <button class="btn-restart" id="restartBtn"></button>
+    <!-- 右欄 -->
+    <div class="right-panel">
+      <div class="options-grid" id="optionsGrid"></div>
+
+      <div class="feedback-overlay" id="feedbackOverlay">
+        <div class="feedback-circle">
+          <div class="feedback-icon" id="feedbackIcon">✓</div>
+          <div class="feedback-text" id="feedbackText"></div>
+          <div class="feedback-text-sub" id="feedbackSubText"></div>
+        </div>
+      </div>
+
+      <div class="end-screen" id="endScreen">
+        <div class="end-title" id="endTitle"></div>
+        <div class="end-subtitle" id="endSubtitle"></div>
+        <div class="end-score" id="endScore"></div>
+        <button class="btn-restart" id="restartBtn"></button>
+      </div>
+    </div>
+
+    <!-- 操作說明 -->
+    <div class="guide-overlay" id="guideOverlay" aria-hidden="true">
+      <div class="guide-modal" role="dialog" aria-modal="true" aria-label="操作說明">
+        <div class="guide-header">
+          <div class="guide-indicator" id="guideIndicator">1 / 4</div>
+          <div class="guide-header-title">操作說明</div>
+          <button class="guide-close" id="guideCloseBtn" aria-label="關閉">✕</button>
+        </div>
+
+        <div class="guide-body" id="guideBody"></div>
+
+        <div class="guide-footer">
+          <button class="guide-btn secondary" id="guidePrevBtn">上一頁</button>
+          <button class="guide-btn" id="guideNextBtn">下一頁</button>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-  // 題庫設定
-  const questionsPool = [
-    {
-      price: 2321,
-      name: "積木組合",
-      emoji: "🧱",
-      description: "2321 元的積木組合",
-      options: [
-        [{ denom: 1000, count: 2 }, { denom: 100, count: 3 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
-        [{ denom: 100, count: 23 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
-        [{ denom: 1000, count: 2 }, { denom: 10, count: 32 }, { denom: 1, count: 1 }],
-        [{ denom: 1, count: 2321 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 3152,
-      name: "小熊玩偶",
-      emoji: "🧸",
-      description: "3152 元的小熊玩偶",
-      options: [
-        [{ denom: 1000, count: 3 }, { denom: 100, count: 1 }, { denom: 10, count: 5 }, { denom: 1, count: 2 }],
-        [{ denom: 100, count: 31 }, { denom: 1, count: 52 }],
-        [{ denom: 1, count: 3152 }],
-        [{ denom: 1000, count: 3 }, { denom: 10, count: 15 }, { denom: 1, count: 2 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 4800,
-      name: "遙控機器人",
-      emoji: "🤖",
-      description: "4800 元的遙控機器人",
-      options: [
-        [{ denom: 1000, count: 4 }, { denom: 100, count: 8 }],
-        [{ denom: 100, count: 48 }],
-        [{ denom: 10, count: 480 }],
-        [{ denom: 1000, count: 3 }, { denom: 100, count: 18 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 9999,
-      name: "高階遊戲主機",
-      emoji: "🎮",
-      description: "9999 元的高階遊戲主機",
-      options: [
-        [{ denom: 1000, count: 9 }, { denom: 100, count: 9 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
-        [{ denom: 100, count: 99 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
-        [{ denom: 1000, count: 9 }, { denom: 10, count: 99 }, { denom: 1, count: 9 }],
-        [{ denom: 1, count: 9999 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 4276,
-      name: "科學實驗套組",
-      emoji: "🧪",
-      description: "4276 元的科學實驗套組",
-      options: [
-        [{ denom: 1000, count: 4 }, { denom: 100, count: 2 }, { denom: 10, count: 7 }, { denom: 1, count: 6 }],
-        [{ denom: 100, count: 42 }, { denom: 10, count: 7 }, { denom: 1, count: 6 }],
-        [{ denom: 1000, count: 4 }, { denom: 10, count: 27 }, { denom: 1, count: 6 }],
-        [{ denom: 1, count: 4276 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 6503,
-      name: "直排輪鞋組合",
-      emoji: "🛼",
-      description: "6503 元的直排輪鞋組合",
-      options: [
-        [{ denom: 1000, count: 6 }, { denom: 100, count: 5 }, { denom: 1, count: 3 }],
-        [{ denom: 100, count: 65 }, { denom: 1, count: 3 }],
-        [{ denom: 1000, count: 6 }, { denom: 10, count: 50 }, { denom: 1, count: 3 }],
-        [{ denom: 1, count: 6503 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 1234,
-      name: "模型汽車",
-      emoji: "🚗",
-      description: "1234 元的模型汽車",
-      options: [
-        [{ denom: 1000, count: 1 }, { denom: 100, count: 2 }, { denom: 10, count: 3 }, { denom: 1, count: 4 }],
-        [{ denom: 100, count: 12 }, { denom: 10, count: 3 }, { denom: 1, count: 4 }],
-        [{ denom: 1000, count: 1 }, { denom: 10, count: 23 }, { denom: 1, count: 4 }],
-        [{ denom: 1, count: 1234 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 5678,
-      name: "電動火車組",
-      emoji: "🚂",
-      description: "5678 元的電動火車組",
-      options: [
-        [{ denom: 1000, count: 5 }, { denom: 100, count: 6 }, { denom: 10, count: 7 }, { denom: 1, count: 8 }],
-        [{ denom: 100, count: 56 }, { denom: 10, count: 7 }, { denom: 1, count: 8 }],
-        [{ denom: 1000, count: 5 }, { denom: 10, count: 67 }, { denom: 1, count: 8 }],
-        [{ denom: 1, count: 5678 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 7012,
-      name: "鋼琴玩具組",
-      emoji: "🎹",
-      description: "7012 元的鋼琴玩具組",
-      options: [
-        [{ denom: 1000, count: 7 }, { denom: 10, count: 1 }, { denom: 1, count: 2 }],
-        [{ denom: 100, count: 70 }, { denom: 10, count: 1 }, { denom: 1, count: 2 }],
-        [{ denom: 1000, count: 7 }, { denom: 1, count: 12 }],
-        [{ denom: 1, count: 7012 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 8405,
-      name: "戶外露營組",
-      emoji: "⛺",
-      description: "8405 元的戶外露營組",
-      options: [
-        [{ denom: 1000, count: 8 }, { denom: 100, count: 4 }, { denom: 1, count: 5 }],
-        [{ denom: 100, count: 84 }, { denom: 1, count: 5 }],
-        [{ denom: 1000, count: 8 }, { denom: 10, count: 40 }, { denom: 1, count: 5 }],
-        [{ denom: 1, count: 8405 }]
-      ],
-      correctIndex: 0
-    },
-    {
-      price: 3907,
-      name: "桌遊大禮包",
-      emoji: "🎲",
-      description: "3907 元的桌遊大禮包",
-      options: [
-        [{ denom: 1000, count: 3 }, { denom: 100, count: 9 }, { denom: 1, count: 7 }],
-        [{ denom: 100, count: 39 }, { denom: 1, count: 7 }],
-        [{ denom: 1000, count: 3 }, { denom: 10, count: 90 }, { denom: 1, count: 7 }],
-        [{ denom: 1, count: 3907 }]
-      ],
-      correctIndex: 0
+  <script>
+    function shuffle(array) {
+      const arr = array.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
     }
-  ];
 
-  const QUESTIONS_PER_GAME = 4;
+    function formatPrice(price) { return price.toString(); }
 
-  // DOM
-  const questionNumberEl = document.getElementById("questionNumber");
-  const priceDisplayEl = document.getElementById("priceDisplay");
-  const productNameEl = document.getElementById("productName");
-  const productEmojiEl = document.getElementById("productEmoji");
-  const progressInfoEl = document.getElementById("progressInfo");
-  const optionsGridEl = document.getElementById("optionsGrid");
-
-  const feedbackOverlayEl = document.getElementById("feedbackOverlay");
-  const feedbackIconEl = document.getElementById("feedbackIcon");
-  const feedbackTextEl = document.getElementById("feedbackText");
-  const feedbackSubTextEl = document.getElementById("feedbackSubText");
-
-  const endScreenEl = document.getElementById("endScreen");
-  const endTitleEl = document.getElementById("endTitle");
-  const endSubtitleEl = document.getElementById("endSubtitle");
-  const endScoreEl = document.getElementById("endScore");
-  const restartBtn = document.getElementById("restartBtn");
-
-  // 狀態
-  let gameQuestions = [];
-  let totalQuestions = 0;
-  let currentIndex = 0;
-  let correctCount = 0;
-  let locked = false;
-
-  function shuffle(array) {
-    const arr = array.slice();
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
+    function punctToBreaks(text) {
+      return text
+        .replace(/([。！？；：])/g, "$1<br>")
+        .replace(/([，、])/g, "$1<br>")
+        .replace(/<br>\s*<br>/g, "<br>");
     }
-    return arr;
-  }
 
-  function formatPrice(price) {
-    return price.toString();
-  }
+    /* ========= 題庫 ========= */
+    const questionsPool = [
+      {
+        price: 2321, name: "積木組合", emoji: "🧱",
+        options: [
+          [{ denom: 1000, count: 2 }, { denom: 100, count: 3 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
+          [{ denom: 100, count: 23 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
+          [{ denom: 1000, count: 2 }, { denom: 10, count: 32 }, { denom: 1, count: 1 }],
+          [{ denom: 1, count: 2321 }]
+        ],
+        correctIndex: 0
+      },
+      {
+        price: 3152, name: "小熊玩偶", emoji: "🧸",
+        options: [
+          [{ denom: 1000, count: 3 }, { denom: 100, count: 1 }, { denom: 10, count: 5 }, { denom: 1, count: 2 }],
+          [{ denom: 100, count: 31 }, { denom: 1, count: 52 }],
+          [{ denom: 1, count: 3152 }],
+          [{ denom: 1000, count: 3 }, { denom: 10, count: 15 }, { denom: 1, count: 2 }]
+        ],
+        correctIndex: 0
+      },
+      {
+        price: 4800, name: "遙控機器人", emoji: "🤖",
+        options: [
+          [{ denom: 1000, count: 4 }, { denom: 100, count: 8 }, { denom: 10, count: 0 }, { denom: 1, count: 0 }],
+          [{ denom: 1000, count: 0 }, { denom: 100, count: 48 }, { denom: 10, count: 0 }, { denom: 1, count: 0 }],
+          [{ denom: 1000, count: 0 }, { denom: 100, count: 0 }, { denom: 10, count: 480 }, { denom: 1, count: 0 }],
+          [{ denom: 1000, count: 3 }, { denom: 100, count: 18 }, { denom: 10, count: 0 }, { denom: 1, count: 0 }]
+        ],
+        correctIndex: 0
+      },
+      {
+        price: 9999, name: "高階遊戲主機", emoji: "🎮",
+        options: [
+          [{ denom: 1000, count: 9 }, { denom: 100, count: 9 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
+          [{ denom: 1000, count: 0 }, { denom: 100, count: 99 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
+          [{ denom: 1000, count: 9 }, { denom: 100, count: 0 }, { denom: 10, count: 99 }, { denom: 1, count: 9 }],
+          [{ denom: 1000, count: 0 }, { denom: 100, count: 0 }, { denom: 10, count: 0 }, { denom: 1, count: 9999 }]
+        ],
+        correctIndex: 0
+      }
+    ];
 
-  function setupNewGame() {
-    const shuffledPool = shuffle(questionsPool);
-    gameQuestions = shuffledPool.slice(0, Math.min(QUESTIONS_PER_GAME, shuffledPool.length));
-    totalQuestions = gameQuestions.length;
-    currentIndex = 0;
-    correctCount = 0;
-    locked = false;
-    endScreenEl.classList.remove("visible");
-
-    endTitleEl.textContent = "全部題目完成";
-    endSubtitleEl.textContent = "你已經學會如何用最少的錢幣付款。";
-    restartBtn.textContent = "再玩一次";
-
-    renderQuestion();
-  }
-
-  function renderQuestion() {
-    locked = false;
-    feedbackOverlayEl.classList.remove("visible");
-
-    const q = gameQuestions[currentIndex];
-
-    questionNumberEl.textContent = `第 ${currentIndex + 1} 題 / 共 ${totalQuestions} 題`;
-    priceDisplayEl.innerHTML = `${formatPrice(q.price)}<span class="unit">元</span>`;
-    productNameEl.textContent = q.name;
-    productEmojiEl.textContent = q.emoji;
-    progressInfoEl.textContent = `答對題數：${correctCount} 題`;
-
-    const optionBundles = q.options.map((opt, idx) => ({
-      option: opt,
-      isCorrect: idx === q.correctIndex
-    }));
-    const shuffledOptions = shuffle(optionBundles);
-
-    optionsGridEl.innerHTML = "";
-    const letters = ["A", "B", "C", "D"];
+    const QUESTIONS_PER_GAME = 4;
     const denomOrder = [1000, 100, 10, 1];
 
-    shuffledOptions.forEach((bundle, index) => {
-      const card = document.createElement("div");
-      card.className = "option-card";
-      card.dataset.correct = bundle.isCorrect ? "1" : "0";
+    const questionNumberEl = document.getElementById("questionNumber");
+    const priceDisplayEl = document.getElementById("priceDisplay");
+    const productNameEl = document.getElementById("productName");
+    const productEmojiEl = document.getElementById("productEmoji");
+    const progressInfoEl = document.getElementById("progressInfo");
+    const optionsGridEl = document.getElementById("optionsGrid");
 
-      const title = document.createElement("div");
-      title.className = "option-title";
-      title.textContent = `付款方式 ${letters[index]}`;
-      card.appendChild(title);
+    const feedbackOverlayEl = document.getElementById("feedbackOverlay");
+    const feedbackIconEl = document.getElementById("feedbackIcon");
+    const feedbackTextEl = document.getElementById("feedbackText");
+    const feedbackSubTextEl = document.getElementById("feedbackSubText");
 
-      const body = document.createElement("div");
-      body.className = "option-body";
+    const endScreenEl = document.getElementById("endScreen");
+    const endTitleEl = document.getElementById("endTitle");
+    const endSubtitleEl = document.getElementById("endSubtitle");
+    const endScoreEl = document.getElementById("endScore");
+    const restartBtn = document.getElementById("restartBtn");
+    const helpBtn = document.getElementById("helpBtn");
 
-      denomOrder.forEach(denom => {
-        const found = bundle.option.find(row => row.denom === denom);
-        const count = found ? found.count : 0;
+    let gameQuestions = [];
+    let totalQuestions = 0;
+    let currentIndex = 0;
+    let correctCount = 0;
+    let locked = false;
 
-        const line = document.createElement("div");
-        line.className = "money-line";
+    function playSound(isCorrect) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
 
-        const note = document.createElement("div");
-        note.className = "note-icon";
+        const ctx = new AudioContext();
+        const now = ctx.currentTime;
 
-        if (denom === 1000) note.classList.add("note-1000");
-        else if (denom === 100) note.classList.add("note-100");
-        else if (denom === 10) note.classList.add("note-10");
-        else if (denom === 1) note.classList.add("note-1");
+        function tone(freq, startOffset, duration) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
 
-        note.textContent = `${denom} 元`;
-        line.appendChild(note);
+          const start = now + startOffset;
+          gain.gain.setValueAtTime(0.0001, start);
+          gain.gain.exponentialRampToValueAtTime(0.22, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
 
-        const multi = document.createElement("div");
-        multi.className = "note-multiplier";
-        multi.innerHTML = `× <strong>${count}</strong>`;
-        line.appendChild(multi);
+          osc.start(start);
+          osc.stop(start + duration + 0.05);
+        }
 
-        body.appendChild(line);
+        if (isCorrect) {
+          tone(820, 0, 0.12);
+          tone(1050, 0.16, 0.12);
+        } else {
+          tone(360, 0, 0.16);
+          tone(250, 0.18, 0.18);
+        }
+
+        setTimeout(() => ctx.close(), 650);
+      } catch (e) {}
+    }
+
+    function setupNewGame() {
+      const shuffledPool = shuffle(questionsPool);
+      gameQuestions = shuffledPool.slice(0, Math.min(QUESTIONS_PER_GAME, shuffledPool.length));
+      totalQuestions = gameQuestions.length;
+      currentIndex = 0;
+      correctCount = 0;
+      locked = false;
+      endScreenEl.classList.remove("visible");
+
+      endTitleEl.textContent = "全部題目完成";
+      endSubtitleEl.innerHTML = punctToBreaks("你已經學會如何用最少的錢幣付款。");
+      restartBtn.textContent = "再玩一次";
+
+      renderQuestion();
+    }
+
+    function normalizeOption(optionArr) {
+      const map = { 1000: 0, 100: 0, 10: 0, 1: 0 };
+      for (const row of optionArr) map[row.denom] = row.count;
+      return map;
+    }
+
+    function renderQuestion() {
+      locked = false;
+      feedbackOverlayEl.classList.remove("visible");
+
+      const q = gameQuestions[currentIndex];
+
+      questionNumberEl.textContent = `第 ${currentIndex + 1} 題 / 共 ${totalQuestions} 題`;
+      progressInfoEl.textContent = `答對題數：${correctCount} 題`;
+
+      priceDisplayEl.innerHTML = `${formatPrice(q.price)}<span class="unit">元</span>`;
+      productNameEl.textContent = q.name;
+      productEmojiEl.textContent = q.emoji;
+
+      const optionBundles = q.options.map((opt, idx) => ({
+        option: normalizeOption(opt),
+        isCorrect: idx === q.correctIndex
+      }));
+      const shuffledOptions = shuffle(optionBundles);
+
+      optionsGridEl.innerHTML = "";
+      const letters = ["A", "B", "C", "D"];
+
+      shuffledOptions.forEach((bundle, index) => {
+        const card = document.createElement("div");
+        card.className = "option-card";
+        card.dataset.correct = bundle.isCorrect ? "1" : "0";
+
+        const title = document.createElement("div");
+        title.className = "option-title";
+        title.textContent = `付款方式 ${letters[index]}`;
+        card.appendChild(title);
+
+        const body = document.createElement("div");
+        body.className = "option-body";
+
+        denomOrder.forEach(denom => {
+          const count = bundle.option[denom] ?? 0;
+
+          const line = document.createElement("div");
+          line.className = "money-line";
+
+          const note = document.createElement("div");
+          note.className = "note-icon";
+          if (denom === 1000) note.classList.add("note-1000");
+          else if (denom === 100) note.classList.add("note-100");
+          else if (denom === 10) note.classList.add("note-10");
+          else note.classList.add("note-1");
+          note.textContent = `${denom} 元`;
+          line.appendChild(note);
+
+          const multi = document.createElement("div");
+          multi.className = "note-multiplier";
+          multi.innerHTML = `× <strong>${count}</strong>`;
+          line.appendChild(multi);
+
+          body.appendChild(line);
+        });
+
+        card.appendChild(body);
+        card.addEventListener("click", () => handleOptionClick(card));
+        optionsGridEl.appendChild(card);
       });
+    }
 
-      card.appendChild(body);
-      card.addEventListener("click", () => handleOptionClick(card));
-      optionsGridEl.appendChild(card);
+    function handleOptionClick(cardEl) {
+      if (locked) return;
+
+      const isCorrect = cardEl.dataset.correct === "1";
+      locked = true;
+      showFeedback(isCorrect);
+
+      const cards = optionsGridEl.querySelectorAll(".option-card");
+      cards.forEach(card => card.classList.add("disabled"));
+
+      if (isCorrect) correctCount++;
+
+      setTimeout(() => {
+        if (currentIndex < totalQuestions - 1) {
+          currentIndex++;
+          renderQuestion();
+        } else {
+          showEndScreen();
+        }
+      }, 1200);
+    }
+
+    function showFeedback(isCorrect) {
+      feedbackIconEl.textContent = isCorrect ? "✓" : "✗";
+      feedbackIconEl.style.color = isCorrect ? "#16a34a" : "#dc2626";
+      feedbackTextEl.textContent = isCorrect ? "答對了" : "再想一想";
+
+      const msg = isCorrect
+        ? (currentIndex < totalQuestions - 1 ? "進入下一題。" : "即將顯示結果。")
+        : "這個不是最少錢幣的付款方式。";
+      feedbackSubTextEl.innerHTML = punctToBreaks(msg);
+
+      feedbackOverlayEl.classList.add("visible");
+      playSound(isCorrect);
+    }
+
+    function showEndScreen() {
+      feedbackOverlayEl.classList.remove("visible");
+      endScoreEl.textContent = `共 ${totalQuestions} 題，你答對了 ${correctCount} 題。`;
+      endScreenEl.classList.add("visible");
+    }
+
+    restartBtn.addEventListener("click", () => setupNewGame());
+
+    /* ========= 操作說明 ========= */
+    const guideOverlay = document.getElementById("guideOverlay");
+    const guideBody = document.getElementById("guideBody");
+    const guideCloseBtn = document.getElementById("guideCloseBtn");
+    const guidePrevBtn = document.getElementById("guidePrevBtn");
+    const guideNextBtn = document.getElementById("guideNextBtn");
+    const guideIndicator = document.getElementById("guideIndicator");
+
+    let guidePage = 0;
+
+    function demoCardsHTML() {
+      const oneCard = (label) => `
+        <div class="demo-card">
+          <div class="demo-card-title">${label}</div>
+          <div class="demo-lines">
+            <div class="demo-line"><div class="demo-note b">1000</div><div class="demo-x">× 3</div></div>
+            <div class="demo-line"><div class="demo-note r">100</div><div class="demo-x">× 1</div></div>
+            <div class="demo-line"><div class="demo-note s">10</div><div class="demo-x">× 5</div></div>
+            <div class="demo-line"><div class="demo-note c">1</div><div class="demo-x">× 2</div></div>
+          </div>
+        </div>
+      `;
+      return oneCard("付款方式 A") + oneCard("付款方式 B") + oneCard("付款方式 C") + oneCard("付款方式 D");
+    }
+
+    const guidePages = [
+      () => {
+        const title = "付款小遊戲！";
+        const text =
+          "這是一個付款的小遊戲，每一題都會有一個我們要購買的東西，以及這個物品的價格，利用你的聰明才智，找出四種付款方式中，錢幣數量最少的付款方式吧！";
+        return `
+          <div class="guide-inner center-page">
+            <div class="guide-page-title">${title}</div>
+            <div class="guide-text">${punctToBreaks(text)}</div>
+          </div>
+        `;
+      },
+
+      () => `
+        <div class="guide-inner">
+          <div class="guide-page-title">先看左邊</div>
+          <div class="guide-text">${punctToBreaks("左邊會顯示這一題要買的東西和價格，你要用右邊的四種付款方式，找到錢幣數量最少的那一種。")}</div>
+
+          <div class="demo-wrap">
+            <div class="demo" data-demo="p2">
+              <div class="demo-left">
+                <div class="demo-q">第 1 題 / 共 4 題</div>
+                <div class="demo-progress">答對題數：0 題</div>
+
+                <div class="p2-target-leftinfo" style="display:flex; flex-direction:column; gap:10px; flex:1;">
+                  <div class="demo-product-image">
+                    <div class="demo-emoji">🧸</div>
+                  </div>
+                  <div class="demo-question-header">
+                    <div class="demo-price">3152 元</div>
+                    <div class="demo-name">小熊玩偶</div>
+                  </div>
+                </div>
+
+                <div class="demo-help">操作說明</div>
+              </div>
+
+              <div class="demo-right">${demoCardsHTML()}</div>
+
+              <div class="callout-box" data-target=".p2-target-leftinfo" data-label="這題要買的東西和價格"></div>
+            </div>
+          </div>
+        </div>
+      `,
+
+      () => `
+        <div class="guide-inner">
+          <div class="guide-page-title">再看右邊</div>
+          <div class="guide-text">${punctToBreaks("右邊有四種付款方式，你只要點選你覺得錢幣數量最少的那一格，就完成作答。")}</div>
+
+          <div class="demo-wrap">
+            <div class="demo" data-demo="p3">
+              <div class="demo-left">
+                <div class="demo-q">第 1 題 / 共 4 題</div>
+                <div class="demo-progress">答對題數：0 題</div>
+
+                <div style="display:flex; flex-direction:column; gap:10px; flex:1;">
+                  <div class="demo-product-image">
+                    <div class="demo-emoji">🧱</div>
+                  </div>
+                  <div class="demo-question-header">
+                    <div class="demo-price">2321 元</div>
+                    <div class="demo-name">積木組合</div>
+                  </div>
+                </div>
+
+                <div class="demo-help">操作說明</div>
+              </div>
+
+              <div class="demo-right p3-target-rightarea">${demoCardsHTML()}</div>
+
+              <div class="callout-box" data-target=".p3-target-rightarea" data-label="點選一格付款方式"></div>
+            </div>
+          </div>
+        </div>
+      `,
+
+      () => `
+        <div class="guide-inner">
+          <div class="guide-page-title">答對或答錯會怎樣</div>
+          <div class="guide-text">${punctToBreaks("當你點選付款方式後，會出現答對或答錯的提示，答對會進入下一題，答錯會提醒你再想想。")}</div>
+
+          <div class="feedback-samples">
+            <div class="feedback-sample">
+              <div class="icon" style="color:#16a34a;">✓</div>
+              <div class="title">答對了</div>
+              <div class="sub">${punctToBreaks("你選到錢幣數量最少的付款方式。")}</div>
+            </div>
+
+            <div class="feedback-sample">
+              <div class="icon" style="color:#dc2626;">✗</div>
+              <div class="title">再想一想</div>
+              <div class="sub">${punctToBreaks("這個不是最少錢幣的付款方式。")}</div>
+            </div>
+          </div>
+        </div>
+      `
+    ];
+
+    function openGuide() {
+      guidePage = 0;
+      renderGuidePage();
+      guideOverlay.classList.add("visible");
+      guideOverlay.setAttribute("aria-hidden", "false");
+    }
+
+    function closeGuide() {
+      guideOverlay.classList.remove("visible");
+      guideOverlay.setAttribute("aria-hidden", "true");
+    }
+
+    function renderGuidePage() {
+      guideBody.scrollTop = 0; // ✅ 換頁回到最上面，避免上一頁滾動位置影響
+      guideBody.innerHTML = guidePages[guidePage]();
+      guideIndicator.textContent = `${guidePage + 1} / ${guidePages.length}`;
+
+      guidePrevBtn.disabled = guidePage === 0;
+      guidePrevBtn.style.opacity = guidePrevBtn.disabled ? "0.55" : "1";
+      guidePrevBtn.style.cursor = guidePrevBtn.disabled ? "not-allowed" : "pointer";
+
+      guideNextBtn.textContent = (guidePage === guidePages.length - 1) ? "開始遊戲" : "下一頁";
+
+      requestAnimationFrame(() => placeAllCallouts());
+    }
+
+    function placeAllCallouts() {
+      const demos = guideBody.querySelectorAll(".demo");
+      demos.forEach(demo => {
+        const demoRect = demo.getBoundingClientRect();
+        const boxes = demo.querySelectorAll(".callout-box[data-target]");
+        boxes.forEach(box => {
+          const selector = box.getAttribute("data-target");
+          const labelText = box.getAttribute("data-label") || "";
+          const target = demo.querySelector(selector);
+          if (!target) return;
+
+          const tRect = target.getBoundingClientRect();
+          const pad = 8;
+
+          let left = (tRect.left - demoRect.left) - pad;
+          let top  = (tRect.top  - demoRect.top)  - pad;
+          let width  = tRect.width + pad * 2;
+          let height = tRect.height + pad * 2;
+
+          const minInset = 8;
+          const maxW = demoRect.width - minInset * 2;
+          const maxH = demoRect.height - minInset * 2;
+
+          width = Math.min(maxW, width);
+          height = Math.min(maxH, height);
+
+          left = Math.max(minInset, Math.min(left, demoRect.width - minInset - width));
+          top  = Math.max(minInset, Math.min(top, demoRect.height - minInset - height));
+
+          box.style.left = `${left}px`;
+          box.style.top = `${top}px`;
+          box.style.width = `${width}px`;
+          box.style.height = `${height}px`;
+
+          let label = box.querySelector(".callout-label");
+          if (!label) {
+            label = document.createElement("div");
+            label.className = "callout-label";
+            box.appendChild(label);
+          }
+          label.textContent = labelText;
+        });
+      });
+    }
+
+    guideCloseBtn.addEventListener("click", closeGuide);
+    guideOverlay.addEventListener("click", (e) => { if (e.target === guideOverlay) closeGuide(); });
+    guidePrevBtn.addEventListener("click", () => { if (guidePage > 0) { guidePage--; renderGuidePage(); } });
+    guideNextBtn.addEventListener("click", () => {
+      if (guidePage < guidePages.length - 1) { guidePage++; renderGuidePage(); }
+      else { closeGuide(); }
     });
-  }
 
-  // 小音效：答對 / 答錯
-  function playSound(isCorrect) {
-    try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContext) return;
+    helpBtn.addEventListener("click", () => openGuide());
 
-      const ctx = new AudioContext();
-      const now = ctx.currentTime;
+    window.addEventListener("DOMContentLoaded", () => {
+      setupNewGame();
+      openGuide();
+    });
 
-      function tone(freq, startOffset, duration) {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.value = freq;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
+    window.addEventListener("resize", () => {
+      if (guideOverlay.classList.contains("visible")) placeAllCallouts();
+    });
 
-        const start = now + startOffset;
-        gain.gain.setValueAtTime(0.0001, start);
-        gain.gain.exponentialRampToValueAtTime(0.2, start + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
-
-        osc.start(start);
-        osc.stop(start + duration + 0.05);
-      }
-
-      if (isCorrect) {
-        tone(800, 0, 0.12);
-        tone(1000, 0.16, 0.12);
-      } else {
-        tone(380, 0, 0.16);
-        tone(260, 0.18, 0.18);
-      }
-
-      setTimeout(() => ctx.close(), 600);
-    } catch (e) {}
-  }
-
-  function handleOptionClick(cardEl) {
-    if (locked) return;
-
-    const isCorrect = cardEl.dataset.correct === "1";
-    locked = true;
-    showFeedback(isCorrect);
-
-    const cards = optionsGridEl.querySelectorAll(".option-card");
-    cards.forEach(card => card.classList.add("disabled"));
-
-    if (isCorrect) {
-      correctCount++;
-    }
-
-    setTimeout(() => {
-      if (currentIndex < totalQuestions - 1) {
-        currentIndex++;
-        renderQuestion();
-      } else {
-        showEndScreen();
-      }
-    }, 1200);
-  }
-
-  function showFeedback(isCorrect) {
-    feedbackIconEl.textContent = isCorrect ? "✓" : "✗";
-    feedbackIconEl.style.color = isCorrect ? "#16a34a" : "#dc2626";
-    feedbackTextEl.textContent = isCorrect ? "答對了" : "再想一想";
-
-    if (isCorrect) {
-      feedbackSubTextEl.textContent =
-        currentIndex < totalQuestions - 1 ? "進入下一題！" : "即將顯示結果！";
-    } else {
-      feedbackSubTextEl.textContent = "這個不是最少錢幣的付款方式。";
-    }
-
-    feedbackOverlayEl.classList.add("visible");
-    playSound(isCorrect);
-  }
-
-  function showEndScreen() {
-    feedbackOverlayEl.classList.remove("visible");
-    endScoreEl.textContent = `共 ${totalQuestions} 題，你答對了 ${correctCount} 題。`;
-    endScreenEl.classList.add("visible");
-  }
-
-  function restartGame() {
-    setupNewGame();
-  }
-
-  restartBtn.addEventListener("click", restartGame);
-
-  // 初始化
-  setupNewGame();
-</script>
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && guideOverlay.classList.contains("visible")) closeGuide();
+    });
+  </script>
 </body>
 </html>
