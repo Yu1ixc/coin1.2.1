@@ -714,48 +714,112 @@
     }
 
     /* ========= 題庫 ========= */
-    const questionsPool = [
-      {
-        price: 2321, name: "積木組合", emoji: "🧱",
-        options: [
-          [{ denom: 1000, count: 2 }, { denom: 100, count: 3 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
-          [{ denom: 100, count: 23 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
-          [{ denom: 1000, count: 2 }, { denom: 10, count: 32 }, { denom: 1, count: 1 }],
-          [{ denom: 1, count: 2321 }]
-        ],
-        correctIndex: 0
-      },
-      {
-        price: 3152, name: "小熊玩偶", emoji: "🧸",
-        options: [
-          [{ denom: 1000, count: 3 }, { denom: 100, count: 1 }, { denom: 10, count: 5 }, { denom: 1, count: 2 }],
-          [{ denom: 100, count: 31 }, { denom: 1, count: 52 }],
-          [{ denom: 1, count: 3152 }],
-          [{ denom: 1000, count: 3 }, { denom: 10, count: 15 }, { denom: 1, count: 2 }]
-        ],
-        correctIndex: 0
-      },
-      {
-        price: 4800, name: "遙控機器人", emoji: "🤖",
-        options: [
-          [{ denom: 1000, count: 4 }, { denom: 100, count: 8 }, { denom: 10, count: 0 }, { denom: 1, count: 0 }],
-          [{ denom: 1000, count: 0 }, { denom: 100, count: 48 }, { denom: 10, count: 0 }, { denom: 1, count: 0 }],
-          [{ denom: 1000, count: 0 }, { denom: 100, count: 0 }, { denom: 10, count: 480 }, { denom: 1, count: 0 }],
-          [{ denom: 1000, count: 3 }, { denom: 100, count: 18 }, { denom: 10, count: 0 }, { denom: 1, count: 0 }]
-        ],
-        correctIndex: 0
-      },
-      {
-        price: 9999, name: "高階遊戲主機", emoji: "🎮",
-        options: [
-          [{ denom: 1000, count: 9 }, { denom: 100, count: 9 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
-          [{ denom: 1000, count: 0 }, { denom: 100, count: 99 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
-          [{ denom: 1000, count: 9 }, { denom: 100, count: 0 }, { denom: 10, count: 99 }, { denom: 1, count: 9 }],
-          [{ denom: 1000, count: 0 }, { denom: 100, count: 0 }, { denom: 10, count: 0 }, { denom: 1, count: 9999 }]
-        ],
-        correctIndex: 0
-      }
-    ];
+   const questionsPool = [
+  {
+    price: 2321, name: "積木組合", emoji: "🧱",
+    options: [
+      [{ denom: 1000, count: 2 }, { denom: 100, count: 3 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
+      [{ denom: 100, count: 23 }, { denom: 10, count: 2 }, { denom: 1, count: 1 }],
+      [{ denom: 1000, count: 2 }, { denom: 10, count: 32 }, { denom: 1, count: 1 }],
+      [{ denom: 1, count: 2321 }]
+    ],
+    correctIndex: 0
+  },
+  {
+    price: 3152, name: "小熊玩偶", emoji: "🧸",
+    options: [
+      [{ denom: 1000, count: 3 }, { denom: 100, count: 1 }, { denom: 10, count: 5 }, { denom: 1, count: 2 }],
+      [{ denom: 100, count: 31 }, { denom: 1, count: 52 }],
+      [{ denom: 1, count: 3152 }],
+      [{ denom: 1000, count: 3 }, { denom: 10, count: 15 }, { denom: 1, count: 2 }]
+    ],
+    correctIndex: 0
+  },
+  {
+    price: 4800, name: "遙控機器人", emoji: "🤖",
+    options: [
+      [{ denom: 1000, count: 4 }, { denom: 100, count: 8 }, { denom: 10, count: 0 }, { denom: 1, count: 0 }],
+      [{ denom: 1000, count: 0 }, { denom: 100, count: 48 }, { denom: 10, count: 0 }, { denom: 1, count: 0 }],
+      [{ denom: 1000, count: 0 }, { denom: 100, count: 0 }, { denom: 10, count: 480 }, { denom: 1, count: 0 }],
+      [{ denom: 1000, count: 3 }, { denom: 100, count: 18 }, { denom: 10, count: 0 }, { denom: 1, count: 0 }]
+    ],
+    correctIndex: 0
+  },
+  {
+    price: 9999, name: "高階遊戲主機", emoji: "🎮",
+    options: [
+      [{ denom: 1000, count: 9 }, { denom: 100, count: 9 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
+      [{ denom: 1000, count: 0 }, { denom: 100, count: 99 }, { denom: 10, count: 9 }, { denom: 1, count: 9 }],
+      [{ denom: 1000, count: 9 }, { denom: 100, count: 0 }, { denom: 10, count: 99 }, { denom: 1, count: 9 }],
+      [{ denom: 1000, count: 0 }, { denom: 100, count: 0 }, { denom: 10, count: 0 }, { denom: 1, count: 9999 }]
+    ],
+    correctIndex: 0
+  },
+
+  // ====== 新增 6 題（共 10 題） ======
+
+  {
+    price: 2745, name: "彩色畫筆組", emoji: "🖍️",
+    options: [
+      [{ denom: 1000, count: 2 }, { denom: 100, count: 7 }, { denom: 10, count: 4 }, { denom: 1, count: 5 }], // 正確
+      [{ denom: 100, count: 27 }, { denom: 10, count: 4 }, { denom: 1, count: 5 }],
+      [{ denom: 10, count: 274 }, { denom: 1, count: 5 }],
+      [{ denom: 1000, count: 1 }, { denom: 100, count: 17 }, { denom: 10, count: 4 }, { denom: 1, count: 5 }]
+    ],
+    correctIndex: 0
+  },
+  {
+    price: 5609, name: "運動水壺", emoji: "🥤",
+    options: [
+      [{ denom: 1000, count: 5 }, { denom: 100, count: 6 }, { denom: 10, count: 0 }, { denom: 1, count: 9 }], // 正確
+      [{ denom: 100, count: 56 }, { denom: 1, count: 9 }],
+      [{ denom: 10, count: 560 }, { denom: 1, count: 9 }],
+      [{ denom: 1000, count: 4 }, { denom: 100, count: 16 }, { denom: 10, count: 0 }, { denom: 1, count: 9 }]
+    ],
+    correctIndex: 0
+  },
+  {
+    price: 7018, name: "故事書套組", emoji: "📚",
+    options: [
+      [{ denom: 1000, count: 7 }, { denom: 100, count: 0 }, { denom: 10, count: 1 }, { denom: 1, count: 8 }], // 正確
+      [{ denom: 100, count: 70 }, { denom: 10, count: 1 }, { denom: 1, count: 8 }],
+      [{ denom: 10, count: 701 }, { denom: 1, count: 8 }],
+      [{ denom: 1000, count: 6 }, { denom: 100, count: 10 }, { denom: 10, count: 1 }, { denom: 1, count: 8 }]
+    ],
+    correctIndex: 0
+  },
+  {
+    price: 8420, name: "拼圖大禮盒", emoji: "🧩",
+    options: [
+      [{ denom: 1000, count: 8 }, { denom: 100, count: 4 }, { denom: 10, count: 2 }, { denom: 1, count: 0 }], // 正確
+      [{ denom: 100, count: 84 }, { denom: 10, count: 2 }, { denom: 1, count: 0 }],
+      [{ denom: 10, count: 842 }, { denom: 1, count: 0 }],
+      [{ denom: 1000, count: 7 }, { denom: 100, count: 14 }, { denom: 10, count: 2 }, { denom: 1, count: 0 }]
+    ],
+    correctIndex: 0
+  },
+  {
+    price: 1937, name: "文具福袋", emoji: "✏️",
+    options: [
+      [{ denom: 1000, count: 1 }, { denom: 100, count: 9 }, { denom: 10, count: 3 }, { denom: 1, count: 7 }], // 正確
+      [{ denom: 100, count: 19 }, { denom: 10, count: 3 }, { denom: 1, count: 7 }],
+      [{ denom: 10, count: 193 }, { denom: 1, count: 7 }],
+      [{ denom: 1000, count: 1 }, { denom: 100, count: 8 }, { denom: 10, count: 13 }, { denom: 1, count: 7 }]
+    ],
+    correctIndex: 0
+  },
+  {
+    price: 6284, name: "科學實驗盒", emoji: "🧪",
+    options: [
+      [{ denom: 1000, count: 6 }, { denom: 100, count: 2 }, { denom: 10, count: 8 }, { denom: 1, count: 4 }], // 正確
+      [{ denom: 100, count: 62 }, { denom: 10, count: 8 }, { denom: 1, count: 4 }],
+      [{ denom: 10, count: 628 }, { denom: 1, count: 4 }],
+      [{ denom: 1000, count: 5 }, { denom: 100, count: 12 }, { denom: 10, count: 8 }, { denom: 1, count: 4 }]
+    ],
+    correctIndex: 0
+  }
+];
+
 
     const QUESTIONS_PER_GAME = 4;
     const denomOrder = [1000, 100, 10, 1];
